@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>    
+	<title>Client</title>
+    <meta charset="utf-8">
+    <meta name = "viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href = "css/bootstrap.min.css" rel="stylesheet">
+    
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+               IAA Example Client
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">IoT Resource access.</h5>
+                <p>Make sure you have the console open in order to monitor the log messages</p>
+                <div class="form-group">
+                    <label for="url">Username</label>
+                    <input type="text" class="form-control" id="username" value="sofie">
+                    <label for="url">Password</label>
+                    <input type="password" class="form-control" id="password" value="sofie!">
+                </div>
+                <button class="btn btn-default" id="direct-access-btn">Retrieve access token directly</button>
+                <button class="btn btn-default" id="first-btn">Retrieve access through a smart contact</button>
+                <br/><br/>
+                <div class="form-group">
+                    <label for="url">Access token</label>
+                    <input type="text" class="form-control" id="token" value="access token:" disabled>
+                </div>
+                <button class="btn btn-default" id="second-btn">Access resource</button>
+                <br/>
+            </div>
+        </div>
+        <div id="response"></div>
+    </div>
+</body>
+<script src="js/conf.js"></script>
+<script src="js/nacl.min.js"></script>
+<script src="js/ctcore.js"></script>
+<script>
+
+    var ACPPubKeyBase64;
+    var textEncoder  = new TextEncoder();
+    var challenge = "";
+
+    window.addEventListener('load',  function() {
+        document.getElementById("direct-access-btn").addEventListener("click", authServerCall);
+       if (typeof web3 !== 'undefined'){
+            hasWeb3 = true;
+            web3 = new Web3(web3.currentProvider);
+            var contract = web3.eth.contract(ABI);
+            var access  = contract.at(contractAddress);
+            var hashLockCreatedEvent = access.hashLockCreatedEvent();
+            hashLockCreatedEvent.watch(hashLockCreatedEventHandler);
+       }
+    }); 
+    
+    function authServerCall()
+    {
+        
+        var xhttp    = new XMLHttpRequest();
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+        var tokenbox = document.getElementById("token")
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4) {
+                console.log ("Received from OAuth Server: " + this.responseText);
+                tokenbox.value = this.responseText;
+            }
+        };
+        xhttp.open("POST",authServerURL+"?method=direct", true);
+        xhttp.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); 
+        xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
+        xhttp.send("grant_type=client_credentials");
+    }
+
+    function hashLockCreatedEventHandler(error,result)
+    {
+        if (!error)
+        {
+            var lock = result.args.lock;
+            access.deposit(lock, 0, {gas: 3000000, value: web3.toWei("1", "gwei")},function(error, result) { 
+                if (!error)
+                {
+                    console.log("Deposit function has been invoked");  
+                }else
+                {
+                    console.log("Error: " + error); 
+                } 
+            });
+            console.log(`Lock created ${lock}`);         
+        }else{
+            console.log("Event error")
+        }
+    }
+
+    function hashLockOpenedEventHandler(error,result)
+    {
+        if (!error)
+        {
+            var key = result.args.key;
+            console.log(`Received token decryption key ${key}`);         
+        }else{
+            console.log("Event error")
+        }
+    }
+
+</script>

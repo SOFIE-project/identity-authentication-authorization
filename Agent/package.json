@@ -1,0 +1,15 @@
+{
+  "name": "iaa",
+  "version": "1.0.0",
+  "description": "Identification, Authentication, Authorization component",
+  "main": "IAAagent.js",
+  "dependencies": {
+    "web3": "^1.0.0-beta.55"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nikos Fotiou",
+  "license": "ISC"
+}
