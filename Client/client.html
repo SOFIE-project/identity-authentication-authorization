@@ -44,14 +44,15 @@
     var ACPPubKeyBase64;
     var textEncoder  = new TextEncoder();
     var challenge = "";
+    var access;
 
-    window.addEventListener('load',  function() {
+    window.addEventListener('load',  async() =>{
         document.getElementById("direct-access-btn").addEventListener("click", authServerCall);
-       if (typeof web3 !== 'undefined'){
-            hasWeb3 = true;
-            web3 = new Web3(web3.currentProvider);
-            var contract = web3.eth.contract(ABI);
-            var access  = contract.at(contractAddress);
+       if (typeof ethereum !== 'undefined'){
+            web3 = new Web3(ethereum)
+            const accounts = await ethereum.enable()
+            web3.eth.defaultAccount = accounts[0]
+            access = web3.eth.contract(ABI).at(contractAddress);
             var hashLockCreatedEvent = access.hashLockCreatedEvent();
             hashLockCreatedEvent.watch(hashLockCreatedEventHandler);
        }
@@ -84,7 +85,7 @@
             access.deposit(lock, 0, {gas: 3000000, value: web3.toWei("1", "gwei")},function(error, result) { 
                 if (!error)
                 {
-                    console.log("Deposit function has been invoked");  
+                    console.log(`Deposit function has been invoked for ${lock}`);  
                 }else
                 {
                     console.log("Error: " + error); 

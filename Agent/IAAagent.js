@@ -2,16 +2,16 @@
 var  ABI            = [{"constant":false,"inputs":[{"name":"lock","type":"bytes32"},{"name":"price","type":"uint256"}],"name":"deposit","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"lock","type":"bytes32"},{"name":"key","type":"string"}],"name":"openHashLock","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"lock","type":"bytes32"}],"name":"getHashLock","outputs":[{"name":"","type":"string"},{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"lock","type":"bytes32"},{"name":"metadata","type":"string"}],"name":"createHashLock","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"name":"lock","type":"bytes32"}],"name":"hashLockCreatedEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"lock","type":"bytes32"},{"indexed":false,"name":"key","type":"string"}],"name":"hashLockOpenedEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"lock","type":"bytes32"}],"name":"newDepositEvent","type":"event"}];
 var contractAddress = "0x796a52b3446ED0CaC17Ea7A332e8B4F83cC833cD" // Rinkeby
 var web3Provider    = "http://195.251.234.25:8546"; 
-var ethAccountAddr  = "0xD41e00c8F1474e337142f2F860Fb7dEb9e1492E3"; // ***Account must be unlocked***
-var authServerURL   = "acp.mmlab.edu.gr";
+var ethAccountAddr  = "0xd248841946ccc10e030de89aa88db662d32ab7c5"; // ***Account must be unlocked***
+var authServerURL   = "http://blockchain.mmlab.edu.gr/SOFIE/IAA/Authorization-Server/index.php";
 /*End configuration*/
 
 const http = require('http')
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(web3Provider));
 console.log("Connected to rpc server...");
-var access = web3.eth.Contract(ABI,contractAddress);
-access.events.newDepositEvent(depositEventHandler);
+var access = new web3.eth.Contract(ABI,contractAddress);
+access.events.newDepositEvent().on('data', depositEventHandler);
 
 function createHashLock(data){
     console.log(`HashLock API invoked lock=${data.lock}, metadata=${data.metadata}`)
@@ -26,10 +26,10 @@ function createHashLock(data){
     })
 }
 
-function depositEventHandler(error,result)
+function depositEventHandler(result)
 {
     console.log("New deposit event")
-    var lock = result.args.lock
+    var lock = result.lock
     var nonce = ''
     access.methods.getHashLock(lock).call().then(function(result){
         nonce = result.nonce;
