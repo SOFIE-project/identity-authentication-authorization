@@ -76,7 +76,7 @@ require_once ('keccak.php');
         $data     = json_decode($postdata, true);
         $keypair  = generateTokenEncryptionKey($data["nonce"]); 
         $key      = base64_encode(substr($keypair[1], 0, 28));  
-        echo "key ". $key;
+        echo $key;
     }
     
     /*

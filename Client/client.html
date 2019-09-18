@@ -39,23 +39,22 @@
 <script src="js/conf.js"></script>
 <script src="js/nacl.min.js"></script>
 <script src="js/ctcore.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.2.0/dist/web3.min.js"></script>
 <script>
 
     var ACPPubKeyBase64;
     var textEncoder  = new TextEncoder();
     var challenge = "";
     var access;
+    var web3Provider    = "ws://195.251.234.25:8546"; 
+    var ethAccountAddr  = "0xd248841946ccc10e030de89aa88db662d32ab7c5"; // ***Account must be unlocked***
 
     window.addEventListener('load',  async() =>{
         document.getElementById("direct-access-btn").addEventListener("click", authServerCall);
-       if (typeof ethereum !== 'undefined'){
-            web3 = new Web3(ethereum)
-            const accounts = await ethereum.enable()
-            web3.eth.defaultAccount = accounts[0]
-            access = web3.eth.contract(ABI).at(contractAddress);
-            var hashLockCreatedEvent = access.hashLockCreatedEvent();
-            hashLockCreatedEvent.watch(hashLockCreatedEventHandler);
-       }
+            const web3 = new Web3(new Web3.providers.WebsocketProvider(web3Provider));
+            access = new web3.eth.Contract(ABI,contractAddress);
+            access.events.hashLockCreatedEvent().on('data', hashLockCreatedEventHandler);
+            access.events.hashLockOpenedEvent().on('data', hashLockOpenedEventHandler)
     }); 
     
     function authServerCall()
@@ -77,35 +76,27 @@
         xhttp.send("grant_type=client_credentials");
     }
 
-    function hashLockCreatedEventHandler(error,result)
+    function hashLockCreatedEventHandler(result)
     {
-        if (!error)
-        {
-            var lock = result.args.lock;
-            access.deposit(lock, 0, {gas: 3000000, value: web3.toWei("1", "gwei")},function(error, result) { 
-                if (!error)
-                {
-                    console.log(`Deposit function has been invoked for ${lock}`);  
-                }else
-                {
-                    console.log("Error: " + error); 
-                } 
-            });
-            console.log(`Lock created ${lock}`);         
-        }else{
-            console.log("Event error")
-        }
+
+        var lock = result.returnValues.lock;
+        access.methods.deposit(lock, 0).send({from:ethAccountAddr, gas: 3000000, value: web3.toWei("1", "gwei")},function(error, result) { 
+            if (!error)
+            {
+                console.log(`Deposit function has been invoked for ${lock}`);  
+            }else
+            {
+                console.log("Error: " + error); 
+            } 
+        });
+        console.log(`Lock created ${lock}`);         
+        
     }
 
-    function hashLockOpenedEventHandler(error,result)
+    function hashLockOpenedEventHandler(result)
     {
-        if (!error)
-        {
-            var key = result.args.key;
-            console.log(`Received token decryption key ${key}`);         
-        }else{
-            console.log("Event error")
-        }
+        var key = result.returnValues.key;
+        console.log(`Received token decryption key ${key}`);         
     }
 
 </script>
