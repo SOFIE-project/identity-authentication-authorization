@@ -26,6 +26,9 @@ This entity is responsible for mediating the communication between the Authoriza
 #### Authorization server
 This entity is an enhanced version of the [OAuth2 php server](https://github.com/bshaffer/oauth2-server-php).
 
+### IoT platform
+A sample IoT platform used for testing pursposed. 
+
 
 ### Relation with SOFIE
 
@@ -52,7 +55,7 @@ The following table includes the key technologies used for each sub-component
 ### Prerequisites
 
 #### Client
-A web browser should be configured with the [metamsk](https://metamask.io) extension. The Client folder should be stored in a web server so it can be accessed over HTTP(s). 
+A web browser should be configured with the [metamask](https://metamask.io) extension. The Client folder should be stored in a web server so it can be accessed over HTTP(s). 
 
 #### Smart contracts
 Smart contracts should be installed in an Ethereum network. 
@@ -100,38 +103,35 @@ Then the agent can be executed using node.js:
 
 `node IAAagent.js`
 
+#### Smart contracts and Authorization server
+Smart contracts and the Authorization servermust be ideployed.
+
+
 #### Client
-A web browser should be configured with the [metamsk](https://metamask.io) extension. The Client folder should be stored in a web server so it can be accessed over HTTP(s). 
+From a web browser configured with the [metamask](https://metamask.io) open the index.html file of the Client (over HTTP). 
 
-#### Smart contracts
-Smart contracts should be installed in an Ethereum network. 
-
-
-
-#### Authorization server
-The Authorization-server fodler should be stored in a web server that supports php, so it can be accessed over HTTP(s) (NOTE accessing the Authorization server is not secure).
 
 ## Testing
 
 ### Prerequisites
 
-A list of all the dependencies needed in order to run the test cases (e.g., a specific testing suite), and how to fetch and install them.
+For testing purposes the contracts of the IAA component have been deployed to the Rinkeby testing network and all sub-components have been configured accordingly. The metamask extension should be configured with this network and an account that has some funds. Simliarly the Ethereum RPC server (geth) should be configured to use Rinkeby and an account that has some funds. The IAAagent.js file should be configured with the information of the Ethereum RPC server. 
 
 ### Running the tests
 
-Explain how to run any automated tests, and what such tests cover, in a high-level manner.
+From a web browser configured with the [metamask](https://metamask.io) open the index.html file of the Client (over HTTP). Press the appropriate button.
 
 ### Evaluating the results
+Each test outputs its outcomes to the console of the web browser. 
 
-Provide information about where the tests results are saved and in which format. Any additional information needed to properly evaluate the test results must be added.
 
 ## Integration
 
-Describe any information that is needed in order to let the project pass through a CI tool. The section should contain information such as the format of the repository (e.g., git, svn, etc.), access control for the repository, i.e., whether it is publicly accessible or it needs to grant permissions to the CI agent (and in that case how such permissions can be obtained), and branches policy (which are the relevant branches, and which one is the designated to be listened to by the CI agent).
+To be provided.
 
 ## Deployment
 
-Describe what are the additional steps needed in order to deploy the artifact and execute it in production.
+To be provided.
 
 ## Known/Open Issues
 
