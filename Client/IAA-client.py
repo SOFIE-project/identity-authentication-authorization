@@ -13,6 +13,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--resource', type=str, help="The URL of the resource")
     parser.add_argument('-t', '--token', type=str, help="The access token")
+    args = parser.parse_args()
     if (args.resource and args.token):
         get_resource(args.resource, args.token)
 

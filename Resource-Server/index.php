@@ -18,6 +18,8 @@ $server = new OAuth2\Server($storage, array(
 // verify the JWT Access Token in the request
 if (!$server->verifyResourceRequest(OAuth2\Request::createFromGlobals())) {
     echo("Failed");
+}else
+{
+    echo "Success!";
 }
-echo "Success!";
 ?>
