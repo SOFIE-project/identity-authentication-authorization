@@ -1,7 +1,7 @@
 # Identity, Authentication and Authorization Component
 ## Description
 
-The goal of the Identity, Authentication and Authorization (IAA) component is to provide mechanisms that can be used for identifying communicating endpoints, as well as for authenticating and authorising users wishing to access a protected resource. 
+The goal of the Identity, Authentication and Authorization (IAA) component is to provide mechanisms that can be used for identifying communicating endpoints, as well as for authenticating and authorizing users wishing to access a protected resource. 
 
 In its present form, the IAA component can authenticate users using username/passwords, or Decentralised Identifiers (DIDs) and it uses the OAuth 2.0 protocol for user Authorization. The user Authorization process is enhanced by a smart contract that provides conditional release of an access token (e.g. when a user performs a payment)
 
