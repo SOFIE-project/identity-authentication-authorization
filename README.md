@@ -32,7 +32,7 @@ Python 3, Hyperledger Indy SDK and the python wrapper, PyJWT are required. Use t
 
 
 ### Configuration
-At this point no configuration is reqiured
+At this point no configuration is required. But later on a configuration file will be required. A sample configuration file will provided at conf/sample.conf
 
 ### Execution
 From the root directory run `python3 IAA/iaa.py`
