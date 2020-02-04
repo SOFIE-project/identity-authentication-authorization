@@ -21,13 +21,14 @@ Nore information about this compoment and its relation to the SOFIE project can 
 ## Installation
 
 ### Prerequisites
-Python 3, Hyperledger Indy SDK, and the python wrapper are required. Use the following commands to install the prerequisites in Ubuntu 18.04 
+Python 3, Hyperledger Indy SDK and the python wrapper, PyJWT are required. Use the following commands to install the prerequisites in Ubuntu 18.04 
 
 * sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CE7709D068DB5E88
 * sudo add-apt-repository "deb https://repo.sovrin.org/sdk/deb bionic stable"
 * sudo apt-get update
 * sudo apt-get install -y libindy
 * pip3 install install python3-indy
+* pip3 install pyjwt
 
 
 ### Configuration
