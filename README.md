@@ -1,33 +1,9 @@
 # Identity, Authentication and Authorization Component
 ## Description
 
-The goal of the Identity, Authentication and Authorization (IAA) component is to provide mechanisms that can be used for identifying communicating endpoints, as well as for authenticating and authorising users wishing to access a protected resource. 
-
-In its present form, the IAA component can authenticate users using username/passwords, or Decentralised Identifiers (DIDs) and it uses the OAuth 2.0 protocol for user Authorization. The user Authorization process is enhanced by a smart contract that provides conditional release of an access token (e.g. when a user performs a payment)
 
 ### Architecture Overview
 
-
-A high-level view of how the system is structured, including visual assets (e.g., images).
-
-In particular, this section should also contain class/sequence diagrams along with the description of the different sub-components involved.
-
-The IAA component is composed of 5 sub-scomponents: Client, Smart contracts, IAA blockchain agent, Authorization Server, and IoT platform.
-
-#### Client
-This this sub-component includes libraries that can be used by an external client application in order to access a platform using the IAA component. 
-
-#### Smart contracts
-The IAA component includes two smart contracts, one for handling DIDs, and another that implements the functionality required by OAuth2-based Authorization using blockchains.
-
-#### IAA blockchain agent
-This entity is responsible for mediating the communication between the Authorization server (see next) and the smart contracts. It is responsible for translating smart contract events into the appropriate REST API calls to the Authorization server (see below), as well as for implementing a REST API that can be invoked by an Authorization server when it requires functionality provided by the smart contracts.
-
-#### Authorization server
-This entity is an enhanced version of the [OAuth2 php server](https://github.com/bshaffer/oauth2-server-php).
-
-### IoT platform
-A sample IoT platform used for testing pursposed. 
 
 
 ### Relation with SOFIE
@@ -37,14 +13,6 @@ Nore information about this compoment and its relation to the SOFIE project can 
 
 ### Key Technologies
 
-The following table includes the key technologies used for each sub-component
-
-| Sub-component | Technologies |
-| ------------- | ------------- |
-| Client  | Metamask and compatible browser |
-| Smart contracts  | Solidity  |
-| IAA blockchain agent  | node.js  |
-| Authorization server  | php compatilbe web server, OAuth2 |
 
 
 ## Usage
