@@ -3,4 +3,5 @@ import pytest
 
 def test_valid_bearer():
     token = "bearer"
-    assert(iaa.IAA.verify_token("Bearer", token) == True)
+    code, message = iaa.IAA.verify_token("Bearer", token)
+    assert( code == 200)
