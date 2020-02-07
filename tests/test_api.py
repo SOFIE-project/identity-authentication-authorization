@@ -17,10 +17,10 @@ def test_valid_bearer():
     payload = {'token-type':'Bearer'}
     response  = requests.post("http://localhost:9000/verifytoken", data = payload).text
     response =json.loads(response)
-    assert(response['result'] == "Success")
+    assert(response['code'] == 200)
 
 def test_invalid_token_type():
     payload = {'token-type':'Garbage'}
     response  = requests.post("http://localhost:9000/verifytoken", data = payload).text
     response =json.loads(response)
-    assert(response['result'] == "Failure")
+    assert(response['code'] == 403)

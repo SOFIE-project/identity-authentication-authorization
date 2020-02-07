@@ -95,6 +95,7 @@ async def setup():
     except IndyError as ex:
         if ex.error_code == ErrorCode.AnoncredsMasterSecretDuplicateNameError:
             pass 
+    print("...User DID: " + user['did'])
     #################################################
     '''
     The following is used for verifying DIDs without the pool

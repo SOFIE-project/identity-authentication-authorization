@@ -44,7 +44,10 @@ The executed script creates an HTTP server that listens for REST API calls at po
 
 ### Prerequisites
 
-Tests are executed using pytest. To install it execute `pip3 install -U pytest` 
+Tests are executed using pytest and pytest-asyncio. To install it execute 
+
+* pip3 install -U pytest 
+* pip3 install pytest-asyncio
 
 ### Running the tests
 From the root directory run `python3 -m pytest -s  tests/`
