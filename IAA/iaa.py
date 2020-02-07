@@ -5,6 +5,9 @@ import json
 import random
 import asyncio
 import base64
+import sys
+
+conf = ""
 
 class Security:
     @staticmethod
@@ -45,6 +48,8 @@ class IAAHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         path = self.path
         if path == "/verifytoken":
+            code = 403
+            output = {'code':403, 'message':'Invalide or missing input parameters'}
             form = cgi.FieldStorage(
                 fp = self.rfile, 
                 headers=self.headers,
@@ -53,8 +58,13 @@ class IAAHandler(BaseHTTPRequestHandler):
                         })
             type  = form.getvalue("token-type")
             token = form.getvalue("token")
+            challenge = form.getvalue("challenge")
             proof = form.getvalue("proof")
-            code, output = IAA.verify_token(type, token, proof)
+            if (type == "Bearer"):
+                code, output = IAA.verify_token(type, token, proof)
+            if (type == "DID"):
+                loop = asyncio.get_event_loop()
+                code, output = loop.run_until_complete(IAA.verify_did(token, challenge, proof, conf['wallet_config'], "", True))#, challenge, proof, conf['wallet_config'], conf['wallet_credentials']))
             self.send_response(code)
             self.send_header('Content-type','application/json'.encode())
             self.end_headers()
@@ -62,8 +72,12 @@ class IAAHandler(BaseHTTPRequestHandler):
 
 
 def main():
-    print ("Starting Agent at port 9000")
-    httpd = HTTPServer(('localhost', 9000), IAAHandler)
+    if len(sys.argv) != 2:
+        print ("Usage iaa.py <configuration file>")
+        sys.exit()
+    with open(sys.argv[1]) as f:
+        conf = json.load(f)
+    httpd = HTTPServer(('localhost', conf["port"]), IAAHandler)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

@@ -32,10 +32,10 @@ Python 3, Hyperledger Indy SDK and the python wrapper, PyJWT are required. Use t
 
 
 ### Configuration
-At this point no configuration is required. But later on a configuration file will be required. A sample configuration file will provided at conf/sample.conf
+A sample configuration file is provided at conf/sample.conf
 
 ### Execution
-From the root directory run `python3 IAA/iaa.py`
+From the root directory run `python3 IAA/iaa.py <configuration file>` e.g., `python3 IAA/iaa.py conf/sample.conf`
 
 ### Usage
 The executed script creates an HTTP server that listens for REST API calls at port 9000. The REST API of IAA component is documented in https://app.swaggerhub.com/apis-docs/nikosft/SOFIE-PDS-IAA/1.0.0#/IAA/vertoken Please select **schema** to see all available API parameters and their documentation.
