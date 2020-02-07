@@ -1,4 +1,5 @@
 from IAA import iaa
+from indy import did,wallet,crypto
 import pytest
 import requests
 import json
@@ -39,3 +40,13 @@ async def test_valid_did():
     response  = requests.post("http://localhost:9000/verifytoken", data = payload).text
     response =json.loads(response)
     assert(response['code'] == 401)
+    challenge = response['challenge']
+    wallet_handle = await wallet.open_wallet(user['wallet_config'], user['wallet_credentials'])
+    verkey = await did.key_for_local_did(wallet_handle, user['did'])
+    signature = await crypto.crypto_sign(wallet_handle, verkey, challenge.encode())
+    signature64 = base64.b64encode(signature)
+    payload = {'token-type':'DID', 'token':user['did'], 'challenge': challenge, 'proof':signature64}
+    response  = requests.post("http://localhost:9000/verifytoken", data = payload).text
+    response =json.loads(response)
+    assert(response['code'] == 200)
+    await wallet.close_wallet(wallet_handle)

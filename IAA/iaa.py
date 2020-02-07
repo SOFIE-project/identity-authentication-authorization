@@ -7,7 +7,7 @@ import asyncio
 import base64
 import sys
 
-conf = ""
+conf = {}
 
 class Security:
     @staticmethod
@@ -16,16 +16,16 @@ class Security:
 
 class IAA:
     @staticmethod
-    def verify_token(type, token="", proof=""):
+    def verify_token(type, token=None, proof=None):
         if (type ==  "Bearer"):
             return 200, {'code':200,'message':'Success'}
         return 403, {'code':403, 'message':'Invalide token type'}
     
     @staticmethod
-    async def verify_did(client_did, challenge="", signature="", wallet_config = "", wallet_credentials="", only_wallet_lookup=False, user_generated_challenge=False):
-        if (client_did !="" and challenge == ""):
+    async def verify_did(client_did, challenge = None, signature=None, wallet_config = "", wallet_credentials=None, only_wallet_lookup=False, user_generated_challenge=False):
+        if (client_did !=None and challenge == None):
             return 401, {'code':401, 'message': 'Proof required','challenge':Security.create_nonce()}
-        if (client_did !="" and challenge != "" and signature != "" and wallet_config!=""):
+        if (client_did != None and challenge != None and signature != None and wallet_config!= None):
             wallet_handle = await wallet.open_wallet(wallet_config, wallet_credentials)
             if (only_wallet_lookup):
                 verkey = await did.key_for_local_did(wallet_handle, client_did)
@@ -46,6 +46,7 @@ class IAA:
 
 class IAAHandler(BaseHTTPRequestHandler):
     def do_POST(self):
+        global conf
         path = self.path
         if path == "/verifytoken":
             code = 403
@@ -64,7 +65,8 @@ class IAAHandler(BaseHTTPRequestHandler):
                 code, output = IAA.verify_token(type, token, proof)
             if (type == "DID"):
                 loop = asyncio.get_event_loop()
-                code, output = loop.run_until_complete(IAA.verify_did(token, challenge, proof, conf['wallet_config'], "", True))#, challenge, proof, conf['wallet_config'], conf['wallet_credentials']))
+                code, output = loop.run_until_complete(
+                    IAA.verify_did(token, challenge, proof, json.dumps(conf['wallet_config']), json.dumps(conf['wallet_credentials']), True))
             self.send_response(code)
             self.send_header('Content-type','application/json'.encode())
             self.end_headers()
@@ -72,6 +74,7 @@ class IAAHandler(BaseHTTPRequestHandler):
 
 
 def main():
+    global conf
     if len(sys.argv) != 2:
         print ("Usage iaa.py <configuration file>")
         sys.exit()
