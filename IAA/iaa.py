@@ -17,10 +17,12 @@ class Security:
 
 class IAA:
     @staticmethod
-    def verify_token(type, token=None, as_public_key=None, target=None, proof=None):
+    def verify_token(type, token=None, as_public_key=None, target=None, tokens_expire = True, proof=None):
         if (type ==  "Bearer"):
+            #decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, verify_expiration = False)
             try:
-                decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target)
+                #verify_exp = false
+                decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, options={"verify_exp":tokens_expire})
                 return 200, {'code':200,'message':'Success'}
             except:
                 return 403, {'code':403,'message':'Token validation failed'}
@@ -67,7 +69,9 @@ class IAAHandler(BaseHTTPRequestHandler):
             challenge = form.getvalue("challenge")
             proof = form.getvalue("proof")
             if (type == "Bearer"):
-                code, output = IAA.verify_token(type, token, proof)
+                with open(conf['as_public_key'], mode='rb') as file: 
+                    as_public_key = file.read()
+                code, output = IAA.verify_token(type, token, as_public_key, conf['target'],conf['tokens_expire'])
             if (type == "DID"):
                 loop = asyncio.get_event_loop()
                 code, output = loop.run_until_complete(
