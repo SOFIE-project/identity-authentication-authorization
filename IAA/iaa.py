@@ -6,6 +6,7 @@ import random
 import asyncio
 import base64
 import sys
+import jwt
 
 conf = {}
 
@@ -16,9 +17,13 @@ class Security:
 
 class IAA:
     @staticmethod
-    def verify_token(type, token=None, proof=None):
+    def verify_token(type, token=None, as_public_key=None, target=None, proof=None):
         if (type ==  "Bearer"):
-            return 200, {'code':200,'message':'Success'}
+            try:
+                decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target)
+                return 200, {'code':200,'message':'Success'}
+            except:
+                return 403, {'code':403,'message':'Token validation failed'}
         return 403, {'code':403, 'message':'Invalide token type'}
     
     @staticmethod
