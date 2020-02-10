@@ -15,19 +15,7 @@ class Security:
     def create_nonce(length=30):
         return ''.join([str(random.randint(0, 9)) for i in range(length)])
 
-class IAA:
-    @staticmethod
-    def verify_token(type, token=None, as_public_key=None, target=None, tokens_expire = True, proof=None):
-        if (type ==  "Bearer"):
-            #decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, verify_expiration = False)
-            try:
-                #verify_exp = false
-                decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, options={"verify_exp":tokens_expire})
-                return 200, {'code':200,'message':'Success'}
-            except:
-                return 403, {'code':403,'message':'Token validation failed'}
-        return 403, {'code':403, 'message':'Invalide token type'}
-    
+class Indy:
     @staticmethod
     async def verify_did(client_did, challenge = None, signature=None, wallet_config = "", wallet_credentials=None, only_wallet_lookup=False, user_generated_challenge=False):
         if (client_did !=None and challenge == None):
@@ -47,6 +35,21 @@ class IAA:
             await wallet.close_wallet(wallet_handle)
         else:
             return 403, {'code':403, 'message':'Invalide or missing input parameters'}
+
+
+class IAA:
+    @staticmethod
+    def verify_token(type, token=None, as_public_key=None, target=None, tokens_expire = True, proof=None):
+        if (type ==  "Bearer"):
+            #decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, verify_expiration = False)
+            try:
+                #verify_exp = false
+                decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, options={"verify_exp":tokens_expire})
+                return 200, {'code':200,'message':'Success'}
+            except:
+                return 403, {'code':403,'message':'Token validation failed'}
+        return 403, {'code':403, 'message':'Invalide token type'}
+    
 
         
         
@@ -75,7 +78,7 @@ class IAAHandler(BaseHTTPRequestHandler):
             if (type == "DID"):
                 loop = asyncio.get_event_loop()
                 code, output = loop.run_until_complete(
-                    IAA.verify_did(token, challenge, proof, json.dumps(conf['wallet_config']), json.dumps(conf['wallet_credentials']), True))
+                    Indy.verify_did(token, challenge, proof, json.dumps(conf['wallet_config']), json.dumps(conf['wallet_credentials']), True))
             self.send_response(code)
             self.send_header('Content-type','application/json'.encode())
             self.end_headers()

@@ -24,13 +24,13 @@ server = {
 
 @pytest.mark.asyncio
 async def test_valid_did():
-    code, response = await iaa.IAA.verify_did(user['did'])
+    code, response = await iaa.Indy.verify_did(user['did'])
     assert (code == 401)
     challenge = response['challenge']
     wallet_handle = await wallet.open_wallet(user['wallet_config'], user['wallet_credentials'])
     verkey = await did.key_for_local_did(wallet_handle, user['did'])
     signature = await crypto.crypto_sign(wallet_handle, verkey, challenge.encode())
     signature64 = base64.b64encode(signature)
-    code, response = await iaa.IAA.verify_did(user['did'], challenge, signature64, server['wallet_config'], server['wallet_credentials'], True)
+    code, response = await iaa.Indy.verify_did(user['did'], challenge, signature64, server['wallet_config'], server['wallet_credentials'], True)
     assert (code == 200)
     await wallet.close_wallet(wallet_handle)
