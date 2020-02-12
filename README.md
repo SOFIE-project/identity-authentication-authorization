@@ -27,7 +27,7 @@ Python 3, Hyperledger Indy SDK and the python wrapper, PyJWT are required. Use t
 * sudo add-apt-repository "deb https://repo.sovrin.org/sdk/deb bionic stable"
 * sudo apt-get update
 * sudo apt-get install -y libindy
-* pip3 install install python3-indy
+* pip3 install python3-indy
 * pip3 install pyjwt
 
 
