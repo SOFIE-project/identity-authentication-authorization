@@ -92,7 +92,7 @@ def main():
         sys.exit()
     with open(sys.argv[1]) as f:
         conf = json.load(f)
-    httpd = HTTPServer(('localhost', conf["port"]), IAAHandler)
+    httpd = HTTPServer(('', conf["port"]), IAAHandler)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
