@@ -14,4 +14,4 @@ pip3 install pyjwt
 apt-get install -y git
 git clone https://github.com/SOFIE-project/identity-authentication-authorization.git
 cd identity-authentication-authorization/
-
+python3 IAA/iaa.py conf/sample.conf
