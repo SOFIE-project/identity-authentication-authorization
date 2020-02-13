@@ -43,7 +43,6 @@ class IAA:
         if (type ==  "Bearer"):
             #decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, verify_expiration = False)
             try:
-                #verify_exp = false
                 decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, options={"verify_exp":tokens_expire})
                 return 200, {'code':200,'message':'Success'}
             except:
