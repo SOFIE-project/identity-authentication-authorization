@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 ARG LISTENING_PORT
 
-EXPOSE ${LISTENING_PORT}
+EXPOSE ${LISTENING_PORT}:9000
 
 RUN apt update
 RUN apt install -y gnupg2 software-properties-common git
