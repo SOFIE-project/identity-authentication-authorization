@@ -34,8 +34,11 @@ Python 3, Hyperledger Indy SDK and the python wrapper, PyJWT are required. Use t
 ### Configuration
 A sample configuration file is provided at conf/sample.conf
 
-### Execution
+### Execution from source
 From the root directory run `python3 IAA/iaa.py <configuration file>` e.g., `python3 IAA/iaa.py conf/sample.conf`
+
+### Dockerized version
+In order to build IAA image, execute the script `docker-build.sh`. Then you can run IAA using, for example,  `docker run -tid --rm -p 9000:9000 iaa`. You can verfiry that IAA is running properly be executing the script `tests/scripts/curl/validate_token.sh`
 
 ### Usage
 The executed script creates an HTTP server that listens for REST API calls at port 9000. The REST API of IAA component is documented in 
