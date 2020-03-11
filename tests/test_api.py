@@ -3,7 +3,6 @@ myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../IAA/')
 
 from indy import did,wallet,crypto
-import iaa
 import pytest
 import requests
 import json
