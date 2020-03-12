@@ -52,7 +52,7 @@ class IAAHandler(BaseHTTPRequestHandler):
                 code, output = loop.run_until_complete(
                     Indy.verify_did(token, challenge, proof, wallet_handle,pool_handle, True))
             self.send_response(code)
-            self.send_header('Content-type','application/json'.encode())
+            self.send_header('Content-type','application/json')
             self.end_headers()
             self.wfile.write(json.dumps(output).encode())
 
