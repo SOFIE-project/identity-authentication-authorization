@@ -45,7 +45,6 @@ class IAAHandler(BaseHTTPRequestHandler):
             token = form.getvalue("token")
             challenge = form.getvalue("challenge")
             proof = form.getvalue("proof")
-            print("type is", type)
             if type == "Bearer":
                 with open(conf['as_public_key'], mode='rb') as file:
                     as_public_key = file.read()
@@ -73,7 +72,6 @@ def main():
     loop = asyncio.get_event_loop()
     wallet_handle = loop.run_until_complete(
         wallet.open_wallet(json.dumps(conf['wallet_config']), json.dumps(conf['wallet_credentials'])))
-    # print("wallet_handle is ", wallet_handle)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
