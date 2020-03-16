@@ -1,0 +1,17 @@
+docker run -tid --name IAA_Ubuntu_Env -p "9000:9000" ubuntu:18.04
+docker exec -ti IAA_Ubuntu_Env bash
+
+apt-get update
+apt-get install -y gnupg
+apt-get install -y software-properties-common
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CE7709D068DB5E88
+add-apt-repository "deb https://repo.sovrin.org/sdk/deb bionic stable"
+apt-get update
+apt-get install -y libindy
+apt-get install -y python3-pip
+pip3 install python3-indy
+pip3 install pyjwt
+apt-get install -y git
+git clone https://github.com/SOFIE-project/identity-authentication-authorization.git
+cd identity-authentication-authorization/
+python3 IAA/iaa.py conf/sample.conf

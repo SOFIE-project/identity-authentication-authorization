@@ -1,0 +1,1 @@
+ docker build -t iaa -f IAA.dockerfile --build-arg LISTENING_PORT="9000" .
