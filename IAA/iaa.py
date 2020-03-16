@@ -11,20 +11,20 @@ conf = {}
 wallet_handle = ""
 pool_handle = ""
 
+
 class IAA:
     @staticmethod
-    def verify_token(type, token=None, as_public_key=None, target=None, tokens_expire = True, proof=None):
-        if (type ==  "Bearer"):
-            #decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, verify_expiration = False)
+    def verify_token(type, token=None, as_public_key=None, target=None, tokens_expire=True, proof=None):
+        if (type == "Bearer"):
+            # decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, verify_expiration = False)
             try:
-                decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, options={"verify_exp":tokens_expire})
-                # print("decoded_token : ",decoded_token)
-
-                return 200, {'code':200,'message':'Success'}
+                decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target,
+                                           options={"verify_exp": tokens_expire})
+                return 200, {'code': 200, 'message': 'Success'}
             except:
-                return 403, {'code':403,'message':'Token validation failed'}
-        return 403, {'code':403, 'message':'Invalide token type'}
-    
+                return 403, {'code': 403, 'message': 'Token validation failed'}
+        return 403, {'code': 403, 'message': 'Invalide token type'}
+
 
 class IAAHandler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -34,28 +34,28 @@ class IAAHandler(BaseHTTPRequestHandler):
         path = self.path
         if path == "/verifytoken":
             code = 403
-            output = {'code':403, 'message':'Invalide or missing input parameters'}
+            output = {'code': 403, 'message': 'Invalide or missing input parameters'}
             form = cgi.FieldStorage(
-                fp = self.rfile, 
+                fp=self.rfile,
                 headers=self.headers,
-                environ={'REQUEST_METHOD':'POST',
-                        'CONTENT_TYPE':self.headers['Content-Type'],
-                        })
-            type  = form.getvalue("token-type")
+                environ={'REQUEST_METHOD': 'POST',
+                         'CONTENT_TYPE': self.headers['Content-Type'],
+                         })
+            type = form.getvalue("token-type")
             token = form.getvalue("token")
             challenge = form.getvalue("challenge")
             proof = form.getvalue("proof")
             print("type is", type)
-            if (type == "Bearer"):
-                with open(conf['as_public_key'], mode='rb') as file: 
+            if type == "Bearer":
+                with open(conf['as_public_key'], mode='rb') as file:
                     as_public_key = file.read()
-                code, output = IAA.verify_token(type, token, as_public_key, conf['target'],conf['tokens_expire'])
-            if (type == "DID"):
+                code, output = IAA.verify_token(type, token, as_public_key, conf['target'], conf['tokens_expire'])
+            if type == "DID":
                 loop = asyncio.get_event_loop()
                 code, output = loop.run_until_complete(
-                    Indy.verify_did(token, challenge, proof, wallet_handle,pool_handle, True))
+                    Indy.verify_did(token, challenge, proof, wallet_handle, pool_handle, True))
             self.send_response(code)
-            self.send_header('Content-type','application/json')
+            self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps(output).encode())
 
@@ -65,13 +65,14 @@ def main():
     global wallet_handle
     global pool_handle
     if len(sys.argv) != 2:
-        print ("Usage iaa.py <configuration file>")
+        print("Usage iaa.py <configuration file>")
         sys.exit()
     with open(sys.argv[1]) as f:
         conf = json.load(f)
     httpd = HTTPServer(('', conf["port"]), IAAHandler)
     loop = asyncio.get_event_loop()
-    wallet_handle = loop.run_until_complete(wallet.open_wallet(json.dumps(conf['wallet_config']), json.dumps(conf['wallet_credentials'])))
+    wallet_handle = loop.run_until_complete(
+        wallet.open_wallet(json.dumps(conf['wallet_config']), json.dumps(conf['wallet_credentials'])))
     # print("wallet_handle is ", wallet_handle)
     try:
         httpd.serve_forever()
@@ -80,6 +81,7 @@ def main():
     httpd.server_close()
     loop.run_until_complete(wallet.close_wallet(wallet_handle))
     loop.close()
+
 
 if __name__ == '__main__':
     main()

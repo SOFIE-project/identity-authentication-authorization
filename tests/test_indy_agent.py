@@ -28,22 +28,16 @@ server = {
 
 @pytest.mark.asyncio
 async def test_valid_did():
-    # code, response = await Indy.verify_did(user['did'], challenge='dummy')
-    # assert (code == 403)
     code, response = await Indy.verify_did(user['did'])
     assert (code == 401)
     challenge = response['challenge']
     wallet_handle = await wallet.open_wallet(user['wallet_config'], user['wallet_credentials'])
     verkey = await did.key_for_local_did(wallet_handle, user['did'])
-
-    # print("verkey in test indy agent", verkey)
     signature = await crypto.crypto_sign(wallet_handle, verkey, challenge.encode())
     signature64 = base64.b64encode(signature)
     server_wallet_handle = await wallet.open_wallet(server['wallet_config'], server['wallet_credentials'])
     code, response = await Indy.verify_did(user['did'], challenge, signature64, server_wallet_handle, "", True)
     assert (code == 200)
-    # code, response = await Indy.verify_did('3qk3Ab43ufPQVif4GAzLUW', challenge, signature64, server_wallet_handle, "", True)
-    # assert (code == 404)
     await wallet.close_wallet(wallet_handle)
     await wallet.close_wallet(server_wallet_handle)
 

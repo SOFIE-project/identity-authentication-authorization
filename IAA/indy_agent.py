@@ -4,7 +4,6 @@ import base64
 import random
 
 
-
 class Indy:
     @staticmethod
     def create_nonce(length=30):
@@ -19,8 +18,6 @@ class Indy:
             if only_wallet_lookup:
                 try:
                     verkey = await did.key_for_local_did(wallet_handle, client_did)
-
-                    print("____verkey:", verkey, "wallet handle:", wallet_handle,"did:",client_did)
                 except IndyError:
                     return 404, {'code': 404, 'message': 'DID doesn\'t exist'}
             else:
