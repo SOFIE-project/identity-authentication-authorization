@@ -91,7 +91,7 @@ async def setup():
     nym_request              = await ledger.build_nym_request(endorser['did'], user['did'], user['key'], None, None)
     await ledger.sign_and_submit_request(pool_handle, endorser['wallet'], endorser['did'], nym_request)
     try:
-        await anoncreds.prover_create_master_secret(usawait wallet.close_wallet(server['wallet'])er['wallet'], user['msk'])
+        await anoncreds.prover_create_master_secret(await wallet.close_wallet(server['wallet']), user['msk'])
     except IndyError as ex:
         if ex.error_code == ErrorCode.AnoncredsMasterSecretDuplicateNameError:
             pass 

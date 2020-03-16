@@ -18,6 +18,8 @@ class IAA:
             #decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, verify_expiration = False)
             try:
                 decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, options={"verify_exp":tokens_expire})
+                # print("decoded_token : ",decoded_token)
+
                 return 200, {'code':200,'message':'Success'}
             except:
                 return 403, {'code':403,'message':'Token validation failed'}
@@ -43,6 +45,7 @@ class IAAHandler(BaseHTTPRequestHandler):
             token = form.getvalue("token")
             challenge = form.getvalue("challenge")
             proof = form.getvalue("proof")
+            print("type is", type)
             if (type == "Bearer"):
                 with open(conf['as_public_key'], mode='rb') as file: 
                     as_public_key = file.read()
@@ -69,12 +72,14 @@ def main():
     httpd = HTTPServer(('', conf["port"]), IAAHandler)
     loop = asyncio.get_event_loop()
     wallet_handle = loop.run_until_complete(wallet.open_wallet(json.dumps(conf['wallet_config']), json.dumps(conf['wallet_credentials'])))
+    # print("wallet_handle is ", wallet_handle)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
         pass
     httpd.server_close()
     loop.run_until_complete(wallet.close_wallet(wallet_handle))
+    loop.close()
 
 if __name__ == '__main__':
     main()
