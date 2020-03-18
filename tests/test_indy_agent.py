@@ -40,3 +40,12 @@ async def test_valid_did():
     assert (code == 200)
     await wallet.close_wallet(wallet_handle)
     await wallet.close_wallet(server_wallet_handle)
+
+
+@pytest.mark.asyncio
+async def test_invalid_did():
+    code, response = await Indy.verify_did(user['did'], challenge='dummy')
+    assert (code == 403)
+    not_exist_did = '3qk3Ab43ufPQVif4GAzLUW'
+    code, response = await Indy.verify_did(not_exist_did, '1', 'xyz', 5, "",True)
+    assert (code == 404)

@@ -1,4 +1,4 @@
-from indy import did,wallet,crypto
+from indy import did, wallet, crypto, IndyError
 import asyncio
 import base64
 import random
@@ -14,7 +14,10 @@ class Indy:
             return 401, {'code':401, 'message' : 'Proof required','challenge': Indy.create_nonce()}
         if (client_did != None and challenge != None and signature != None and wallet_handle!= None):
             if (only_wallet_lookup):
-                verkey = await did.key_for_local_did(wallet_handle, client_did)
+                try:
+                    verkey = await did.key_for_local_did(wallet_handle, client_did)
+                except IndyError:
+                    return 404, {'code': 404, 'message': 'DID doesn\'t exist'}
             else:
                 verkey = ""
             #Add code to check if verkey exists
