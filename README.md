@@ -73,8 +73,7 @@ await wallet.close_wallet(wallet_handle)
 ## Testing
 
 ### Prerequisites
-
-Tests are executed using pytest and pytest-asyncio. To install it execute 
+Tests are executed using pytest and pytest-asyncio. To install it execute: 
 
 * pip3 install -U pytest 
 * pip3 install pytest-asyncio
