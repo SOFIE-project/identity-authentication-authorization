@@ -14,8 +14,8 @@ import base64
 def server():
     import subprocess
     import time
-    p1 = subprocess.Popen(['python3', 'IAA/iaa.py', 'tests/conf/test.conf'])
-    time.sleep(1) #Otherwise the server is not ready when tests start
+    p1 = subprocess.Popen(['python3', 'IAA/iaa.py'])
+    time.sleep(5) #Otherwise the server is not ready when tests start
     yield
     p1.kill()
 

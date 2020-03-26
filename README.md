@@ -28,6 +28,7 @@ Python 3, Hyperledger Indy SDK and the python wrapper, PyJWT are required. Use t
 * sudo apt-get update
 * sudo apt-get install -y libindy
 * pip3 install python3-indy pyjwt web3 
+* pip3 install Werkzeug
 
 
 ### Configuration
@@ -79,7 +80,7 @@ Tests are executed using pytest and pytest-asyncio. To install it execute:
 * pip3 install pytest-asyncio
 
 ### Running the tests
-From the root directory run `python3 -m pytest -s  tests/`
+From the root directory run `python3 -m pytest -s  tests/` For shorter output alternatively you can run `python3 -m pytest tests/ -s --tb=short`
 
 
 ## Integration

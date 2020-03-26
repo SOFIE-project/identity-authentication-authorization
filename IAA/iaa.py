@@ -1,7 +1,6 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from werkzeug.wrappers import Request, Response
 from indy_agent import Indy
 from indy import pool, wallet
-import cgi
 import json
 import sys
 import jwt
@@ -24,57 +23,45 @@ class IAA:
         return 403, {'code':403, 'message':'Invalide token type'}
     
 
-class IAAHandler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        global conf
-        global wallet_handle
-        global pool_handle
-        path = self.path
-        if path == "/verifytoken":
-            code = 403
-            output = {'code':403, 'message':'Invalide or missing input parameters'}
-            form = cgi.FieldStorage(
-                fp = self.rfile, 
-                headers=self.headers,
-                environ={'REQUEST_METHOD':'POST',
-                        'CONTENT_TYPE':self.headers['Content-Type'],
-                        })
-            type  = form.getvalue("token-type")
-            token = form.getvalue("token")
-            challenge = form.getvalue("challenge")
-            proof = form.getvalue("proof")
-            if (type == "Bearer"):
-                with open(conf['as_public_key'], mode='rb') as file: 
-                    as_public_key = file.read()
-                code, output = IAA.verify_token(type, token, as_public_key, conf['target'],conf['tokens_expire'])
-            if (type == "DID"):
-                loop = asyncio.get_event_loop()
-                code, output = loop.run_until_complete(
-                    Indy.verify_did(token, challenge, proof, wallet_handle,pool_handle, True))
-            self.send_response(code)
-            self.send_header('Content-type','application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(output).encode())
+class IAAHandler():
+    def __init__(self):
+        with open('conf/iaa.conf') as f:
+            self.conf = json.load(f)
+        loop = asyncio.get_event_loop()
+        self.wallet_handle = loop.run_until_complete(wallet.open_wallet(json.dumps(self.conf['wallet_config']), json.dumps(self.conf['wallet_credentials'])))
+        self.pool_handle = None
+    
+    def wsgi_app(self, environ, start_response):
+        req  = Request(environ)
+        code = 403
+        output = {'code':403, 'message':'Invalide or missing input parameters'}
+        form = req.form
+        type  = form.get("token-type")
+        token = form.get("token")
+        challenge = form.get("challenge")
+        proof = form.get("proof")
+        if (type == "Bearer"):
+            with open(self.conf['as_public_key'], mode='rb') as file: 
+                as_public_key = file.read()
+            code, output = IAA.verify_token(type, token, as_public_key, self.conf['target'],self.conf['tokens_expire'])
+        if (type == "DID"):
+            loop = asyncio.get_event_loop()
+            code, output = loop.run_until_complete(
+                Indy.verify_did(token, challenge, proof, self.wallet_handle, self.pool_handle, True))
+        response = Response(json.dumps(output).encode(), status=code, mimetype='application/json')
+        return response(environ, start_response)
+    def __call__(self, environ, start_response):
+        return self.wsgi_app(environ, start_response)
 
+def create_app():
+    app = IAAHandler()
+    return app
 
-def main():
-    global conf
-    global wallet_handle
-    global pool_handle
-    if len(sys.argv) != 2:
-        print ("Usage iaa.py <configuration file>")
-        sys.exit()
-    with open(sys.argv[1]) as f:
-        conf = json.load(f)
-    httpd = HTTPServer(('', conf["port"]), IAAHandler)
-    loop = asyncio.get_event_loop()
-    wallet_handle = loop.run_until_complete(wallet.open_wallet(json.dumps(conf['wallet_config']), json.dumps(conf['wallet_credentials'])))
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    httpd.server_close()
-    loop.run_until_complete(wallet.close_wallet(wallet_handle))
+def main(): 
+    from werkzeug.serving import run_simple
+    app = create_app()
+    run_simple('127.0.0.1', 9000, app)
+    #loop.run_until_complete(wallet.close_wallet(wallet_handle))
 
 if __name__ == '__main__':
     main()
