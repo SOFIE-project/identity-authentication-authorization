@@ -32,13 +32,25 @@ Python 3, Hyperledger Indy SDK and the python wrapper, PyJWT are required. Use t
 
 
 ### Configuration
-A sample configuration file is provided at conf/sample.conf
+IAA configuration can be changed my modifying the file conf/iaa.conf The configuration file has the following sections:
+
+1) `wallet_config`: includes the configuration of the Indy wallet used by the component.
+
+2) `wallet_credentials`: the password of the Indy wallet used by the component.
+
+3) `only_wallet_lookup`: it defines how IAA will lookup the verkey that corresponds to a DID. If set to `true` it will look it up only in its local wallet, otherwise it also look it up in the configured Indy pool.
+
+4) `as_public_key`: the public key of the authorization server that generates and signs the accepted JWTs.
+
+5) `target`: this is the URI of the protected resource. It must be included in the provided JWT.
+
+6) `tokens_expire`: it defines the IAA component should check the expiration time included in the provided JWT.
 
 ### Execution from source
 From the root directory run `python3 IAA/iaa.py <configuration file>` e.g., `python3 IAA/iaa.py conf/iaa.conf`
 
 ### Dockerized version
-In order to build IAA image, execute the script `docker-build.sh`. Then you can run IAA using, for example,  `docker run -tid --rm -p 9000:9000 iaa`. You can verfiry that IAA is running properly be executing the script `examples/validate_token.sh`
+In order to build IAA image, execute the script `docker-build.sh`. Then you can run IAA using, for example,  `docker run -tid --rm -p 9000:9000 iaa`. You can verify that IAA is running properly be executing the script `examples/validate_token.sh`
 
 ### Usage
 The executed script creates an HTTP server that listens for REST API calls at port 9000. The REST API of IAA component is documented in 
