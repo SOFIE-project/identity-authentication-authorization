@@ -50,6 +50,7 @@ class IAAHandler():
                 Indy.verify_did(token, challenge, proof, self.wallet_handle, self.pool_handle, True))
         response = Response(json.dumps(output).encode(), status=code, mimetype='application/json')
         return response(environ, start_response)
+        
     def __call__(self, environ, start_response):
         return self.wsgi_app(environ, start_response)
 
