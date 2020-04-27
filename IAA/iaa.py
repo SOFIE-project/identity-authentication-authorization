@@ -61,7 +61,7 @@ def create_app():
 def main(): 
     from werkzeug.serving import run_simple
     app = create_app()
-    run_simple('127.0.0.1', 9000, app)
+    run_simple('', 9000, app)
     #loop.run_until_complete(wallet.close_wallet(wallet_handle))
 
 if __name__ == '__main__':
