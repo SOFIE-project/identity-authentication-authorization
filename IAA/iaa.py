@@ -1,4 +1,5 @@
 from werkzeug.wrappers import Request, Response
+from werkzeug.datastructures import Headers
 from indy_agent import Indy
 from indy import pool, wallet
 import json
@@ -35,11 +36,24 @@ class IAAHandler():
         req  = Request(environ)
         code = 403
         output = {'code':403, 'message':'Invalide or missing input parameters'}
+        output_header = {}
         form = req.form
         type  = form.get("token-type")
         token = form.get("token")
         challenge = form.get("challenge")
         proof = form.get("proof")
+        auth = req.headers.get('authorization')
+        if (auth):
+            auth_type, auth_grant = auth.split(" ",1)
+            if (auth_type == 'VC'):
+                proof = req.headers.get('VC-proof')
+                if (proof):
+                    print(proof)
+                else:
+                    code = 401
+                    nonce = Indy.create_nonce()
+                    output_header['WWW-Authenticate'] = "VC challenge=" + nonce
+
         if (type == "Bearer"):
             with open(self.conf['as_public_key'], mode='rb') as file: 
                 as_public_key = file.read()
@@ -49,6 +63,9 @@ class IAAHandler():
             code, output = loop.run_until_complete(
                 Indy.verify_did(token, challenge, proof, self.wallet_handle, self.pool_handle, True))
         response = Response(json.dumps(output).encode(), status=code, mimetype='application/json')
+        if output_header:
+            for key,value in output_header.items():
+                response.headers.add(key, value)
         return response(environ, start_response)
         
     def __call__(self, environ, start_response):

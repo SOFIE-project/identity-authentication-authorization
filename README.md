@@ -29,6 +29,8 @@ Python 3, Hyperledger Indy SDK and the python wrapper, PyJWT are required. Use t
 * sudo apt-get install -y libindy
 * pip3 install python3-indy pyjwt web3 
 * pip3 install Werkzeug
+* pip3 install pynacl 
+* pip3 install PyLD
 
 
 ### Configuration
