@@ -122,7 +122,7 @@ contract ERC721Token is SupportsInterface{
     // finds the owner of a token
     function ownerOf(uint256 _tokenId) external view returns (address) {
         address owner = idToOwner[_tokenId];
-        require(owner != address(0));
+        //require(owner != address(0));
         return owner;
     }
 

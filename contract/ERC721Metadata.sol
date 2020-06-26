@@ -6,6 +6,7 @@ contract ERC721Metadata is ERC721Token {
 
     string internal tokenName;
     string internal tokenSymbol;
+    address private contractOwner;
 
     //mapping from token id to metadata uri
     mapping (uint256 => string) internal idToUri;
@@ -13,6 +14,7 @@ contract ERC721Metadata is ERC721Token {
     constructor (string memory name, string memory symbol) public {
         tokenName = name;
         tokenSymbol = symbol;
+        contractOwner = msg.sender;
         supportedInterfaces[0x5b5e139f] = true; //ERC721Metadata Interface
     }
 
@@ -40,10 +42,12 @@ contract ERC721Metadata is ERC721Token {
     }
 	
 	function burn1 (uint256 _tokenId) external {
+        require(msg.sender == contractOwner);
         burn(_tokenId);
     }
     
     function mint (address _to, uint256 _tokenId, string memory uri) public  {
+        require(msg.sender == contractOwner);
         super.mint(_to, _tokenId);
         setTokenUri(_tokenId, uri);
     }
