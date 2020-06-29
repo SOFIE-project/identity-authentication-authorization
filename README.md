@@ -1,6 +1,7 @@
 # Identity, Authentication, and Authorization Component
 ## Description
-
+This is the Identity, Authentication, and Authorization Component of the SOFIE framework. It can be used for verifying
+Decentralized Identifiers, and Verifiable Credentials. 
 
 ### Architecture Overview
 
@@ -29,6 +30,8 @@ Python 3, Hyperledger Indy SDK and the python wrapper, PyJWT are required. Use t
 * sudo apt-get install -y libindy
 * pip3 install python3-indy pyjwt web3 
 * pip3 install Werkzeug
+* pip3 install pynacl 
+* pip3 install PyLD
 
 
 ### Configuration

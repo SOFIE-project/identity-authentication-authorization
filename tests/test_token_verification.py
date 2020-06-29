@@ -1,10 +1,14 @@
+import sys, os
+myPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, myPath + '/../IAA/')
+
 from IAA import iaa
 import pytest
 
 def test_valid_bearer():
     type = "Bearer"
-    target = 'sofie-iot.eu'
-    token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJzb2ZpZS1pb3QuZXUifQ.l1SnWszSfqZqGT1jDoIXVZM88QOag28oBRN6ZzDd-bI1SAZ0t9w_-zc7JC752FtPIJctj6RGhXjuS-Ls8rXDeVq5jHMNYmAOfLP0AdrE4LAMTtx2NOgz3HZ9-ECUDPMj2nOiUBNHfJRMtYviImnXEXZ6nBFbRBKoUUPZLAkB-fbQWDiInGJQy_6V0VmoeHAbQpjBupy5zZLzgPgwloQ_27seqF284XccBB01JZ6ledlxjIZWWQRD1YdYGhr6NE1m46K2keTCItlQmmtoArFPE4Fqm3-8vfuGtoihL-y9cIqY2ogFtrcWyWm8pqRlQud9bGOI94Zkp0v0Wyv04LYhSQ"
+    target = 'locker1.sofie-iot.eu'
+    token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJsb2NrZXIxLnNvZmllLWlvdC5ldSIsImV4cCI6MTU5MTA0NTE0MC4wLCJuYmYiOjE1OTA5NTg4MDAuMH0.aaNvs4iqvjtFfW6CCsfYfPLgKZSThf3xnvQdcpGkJJIYqXXKu2EWXnK4R3SrQ9RfVMGU6RZsf7xJJpz1DgNdOjT-HpYzFuX3_KDwUI4hP2YJxBV2dArdTRllhLVLGXNdP-5rHS7XYdBeSd_ecrQiIhK7CKYS2VANm05vcZUAOlPO9PETR30_4HirWg0PkcHKxWQVLW4DjdSGDJu-UqbCMLlqRWFVRlrXUIFrOsWoBg6ca6AWW2Yjm9cSoKKULWZFVQHzlnGrzhT9vOd7N-vYiSx_-t8o679J5QJES-vZi-LJhAVQTWDpahwPtqxTUQVbWjvEKIKoNEQco_tbcYeLvQ"
     with open('tests/keys/as_public_key.pem', mode='rb') as file: 
         as_public_key = file.read()
     code, output = iaa.IAA.verify_token(type, token, as_public_key, target, False)
