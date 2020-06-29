@@ -1,7 +1,7 @@
 # Identity, Authentication, and Authorization Component
 ## Description
 This is the Identity, Authentication, and Authorization Component of the SOFIE framework. It can be used for verifying
-Decentralized Identifiers, and Verifiable Credentials. 
+Decentralized Identifiers, Verifiable Credentials, and JSON web tokens. 
 
 ### Architecture Overview
 
