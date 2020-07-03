@@ -32,6 +32,7 @@ Python 3, Hyperledger Indy SDK and the python wrapper, PyJWT are required. Use t
 * pip3 install Werkzeug
 * pip3 install pynacl 
 * pip3 install PyLD
+* pip3 install jsonpath-ng
 
 
 ### Configuration
