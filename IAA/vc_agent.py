@@ -47,7 +47,7 @@ def issue(credential, signing_key, documentloader=None):
     return credential
 
 def verify(singed_credential, verification_key, documentloader=None):
-    """ It signs a credential using Ed25519Signature2018 JSON-LD Signature
+    """ It verifies a credential signed using Ed25519Signature2018 JSON-LD Signature
 
     :param singed_credential: a python dict representing the credential
     :param [verification_key]:  the verification key 

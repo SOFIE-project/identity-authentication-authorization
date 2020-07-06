@@ -55,4 +55,13 @@ def test_valid_vc():
     verification = vc_agent.verify(sofie_credential_signed, verification_key)
     assert (verification == True)
     
-
+def test_filter():
+  filters = [
+      ["$.@context[*]", "https://mm.aueb.gr/contexts/access_control/v1"],
+      ["$.issuer", ["did:nacl:E390CF3B5B93E921C45ED978737D89F61B8CAFF9DE76BFA5F63DA20386BCCA3B","another issuer", "or this issuer"]], # list of valid issuers
+      ["$.credentialSubject.acl[*].url", 'http://sofie-iot.eu/device1'],
+      ["$.credentialSubject.acl[?@.url='http://sofie-iot.eu/device1'].methods[*]","GET"]
+    ]
+  verification = vc_agent.filter(sofie_credential_signed, filters)
+  assert (verification == True)
+  
