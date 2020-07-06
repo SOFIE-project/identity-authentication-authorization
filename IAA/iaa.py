@@ -2,6 +2,7 @@ from werkzeug.wrappers import Request, Response
 from werkzeug.datastructures import Headers
 from indy_agent import Indy
 from indy import pool, wallet
+
 import json
 import sys
 import jwt
@@ -28,6 +29,8 @@ class IAAHandler():
     def __init__(self):
         with open('conf/iaa.conf') as f:
             self.conf = json.load(f)
+        with open(self.conf['as_public_key'], mode='rb') as file: 
+            self.as_public_key = file.read()
         loop = asyncio.get_event_loop()
         self.wallet_handle = loop.run_until_complete(wallet.open_wallet(json.dumps(self.conf['wallet_config']), json.dumps(self.conf['wallet_credentials'])))
         self.pool_handle = None
@@ -48,16 +51,15 @@ class IAAHandler():
             if (auth_type == 'VC'):
                 proof = req.headers.get('VC-proof')
                 if (proof):
-                    print(proof)
+                    verification = vc_agent.verify_token(auth_grant + proof, self.as_public_key)
+                    print(verification)
                 else:
                     code = 401
                     nonce = Indy.create_nonce()
                     output_header['WWW-Authenticate'] = "VC challenge=" + nonce
 
         if (type == "Bearer"):
-            with open(self.conf['as_public_key'], mode='rb') as file: 
-                as_public_key = file.read()
-            code, output = IAA.verify_token(type, token, as_public_key, self.conf['target'],self.conf['tokens_expire'])
+            code, output = IAA.verify_token(type, token, self.as_public_key, self.conf['target'],self.conf['tokens_expire'])
         if (type == "DID"):
             loop = asyncio.get_event_loop()
             code, output = loop.run_until_complete(

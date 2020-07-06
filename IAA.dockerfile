@@ -12,6 +12,9 @@ RUN apt update
 RUN apt install -y libindy python3-pip
 RUN pip3 install python3-indy pyjwt web3
 RUN pip3 install Werkzeug
+RUN pip3 install PyLD
+RUN pip3 install pynacl
+RUN pip3 install jsonpath-ng
 
 COPY IAA/ IAA/
 COPY conf/ conf/
