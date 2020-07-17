@@ -7,6 +7,7 @@ import json
 import sys
 import jwt
 import asyncio
+import requests
 
 conf = {}
 wallet_handle = ""
@@ -60,9 +61,24 @@ class IAAHandler():
             if (auth_type == "Bearer"):
                 code, output = IAA.verify_token("Bearer", auth_grant, self.as_public_key, self.conf['target'],self.conf['tokens_expire'])
                 if (code == 200):
+                    gateway_path = "http://195.251.234.21:8080"
+                    gateway_token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImNjNTIxZDQzLWE3YzEtNDUzOS04ODY2LWRlMmEyNDQyNDU5OSJ9.eyJjbGllbnRfaWQiOiJsb2NhbC10b2tlbiIsInJvbGUiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZSI6Ii90aGluZ3M6cmVhZHdyaXRlIiwiaWF0IjoxNTk0OTkxOTUxLCJpc3MiOiJOb3Qgc2V0LiJ9.Q4X5Z4u2sE_Wq0aggkXnL95EoceJHY4UZjmdKkIFrp28-Cp1sK7tuQ6IdwqhesnAJVDBASvR3UOF3Y8oXSBBUw" 
                     path = environ.get('PATH_INFO')
                     print ("Contacting " + path)
-                    #...
+                    print (gateway_path + path)
+                    if (req.method == "GET"):
+                        gateway_get_headers = {'Authorization':'Bearer ' + gateway_token, 'Accept': 'application/json'}
+                        response  = requests.get(gateway_path + path, headers = gateway_get_headers)
+                        print(response.text)
+                        print("get")
+                    elif (req.method == "PUT"):
+                        gateway_put_headers = {'Authorization':'Bearer ' + gateway_token, 'Content-Type': 'application/json', 'Accept': 'application/json'}
+                        put_data = req.data
+                        print(put_data)
+                        response  = requests.put(gateway_path + path, headers = gateway_put_headers, data = put_data.decode())
+                        print(response.text)
+                    code = 200
+                    output = response.text 
         
         if (type == "Bearer"):
             code, output = IAA.verify_token(type, token, self.as_public_key, self.conf['target'],self.conf['tokens_expire'])
@@ -70,7 +86,7 @@ class IAAHandler():
             loop = asyncio.get_event_loop()
             code, output = loop.run_until_complete(
                 Indy.verify_did(token, challenge, proof, self.wallet_handle, self.pool_handle, True))
-        response = Response(json.dumps(output).encode(), status=code, mimetype='application/json')
+        response = Response(output.encode(), status=code, mimetype='application/json')
         if output_header:
             for key,value in output_header.items():
                 response.headers.add(key, value)
