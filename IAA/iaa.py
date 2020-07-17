@@ -47,6 +47,8 @@ class IAAHandler():
         challenge = form.get("challenge")
         proof = form.get("proof")
         auth = req.headers.get('Authorization')
+        accept = req.headers.get('Accept')
+        content = req.headers.get('Content-Type')
         if (auth):
             auth_type, auth_grant = auth.split(" ",1)
             if (auth_type == 'VC'):
@@ -61,23 +63,22 @@ class IAAHandler():
             if (auth_type == "Bearer"):
                 code, output = IAA.verify_token("Bearer", auth_grant, self.as_public_key, self.conf['target'],self.conf['tokens_expire'])
                 if (code == 200):
-                    gateway_path = "http://195.251.234.21:8080"
-                    gateway_token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImNjNTIxZDQzLWE3YzEtNDUzOS04ODY2LWRlMmEyNDQyNDU5OSJ9.eyJjbGllbnRfaWQiOiJsb2NhbC10b2tlbiIsInJvbGUiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZSI6Ii90aGluZ3M6cmVhZHdyaXRlIiwiaWF0IjoxNTk0OTkxOTUxLCJpc3MiOiJOb3Qgc2V0LiJ9.Q4X5Z4u2sE_Wq0aggkXnL95EoceJHY4UZjmdKkIFrp28-Cp1sK7tuQ6IdwqhesnAJVDBASvR3UOF3Y8oXSBBUw" 
                     path = environ.get('PATH_INFO')
-                    print ("Contacting " + path)
-                    print (gateway_path + path)
+                    headers = {}
                     if (req.method == "GET"):
-                        gateway_get_headers = {'Authorization':'Bearer ' + gateway_token, 'Accept': 'application/json'}
-                        response  = requests.get(gateway_path + path, headers = gateway_get_headers)
-                        print(response.text)
-                        print("get")
+                        if(accept):
+                            headers['Accept'] = accept
+                        headers.update(self.conf['header_rewrite'])
+                        response  = requests.get(self.conf['proxy_pass'] + path, headers = headers)
                     elif (req.method == "PUT"):
-                        gateway_put_headers = {'Authorization':'Bearer ' + gateway_token, 'Content-Type': 'application/json', 'Accept': 'application/json'}
+                        if(accept):
+                            headers['Accept'] = accept
+                        if(content):
+                            headers['Content-Type'] = content
+                        headers.update(self.conf['header_rewrite'])
                         put_data = req.data
-                        print(put_data)
-                        response  = requests.put(gateway_path + path, headers = gateway_put_headers, data = put_data.decode())
-                        print(response.text)
-                    code = 200
+                        response  = requests.put(self.conf['proxy_pass'] + path, headers = headers, data = put_data.decode())
+                    code = response.status_code
                     output = response.text 
         
         if (type == "Bearer"):
