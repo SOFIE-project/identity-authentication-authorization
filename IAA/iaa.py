@@ -45,7 +45,7 @@ class IAAHandler():
         token = form.get("token")
         challenge = form.get("challenge")
         proof = form.get("proof")
-        auth = req.headers.get('authorization')
+        auth = req.headers.get('Authorization')
         if (auth):
             auth_type, auth_grant = auth.split(" ",1)
             if (auth_type == 'VC'):
@@ -57,7 +57,13 @@ class IAAHandler():
                     code = 401
                     nonce = Indy.create_nonce()
                     output_header['WWW-Authenticate'] = "VC challenge=" + nonce
-
+            if (auth_type == "Bearer"):
+                code, output = IAA.verify_token("Bearer", auth_grant, self.as_public_key, self.conf['target'],self.conf['tokens_expire'])
+                if (code == 200):
+                    path = environ.get('PATH_INFO')
+                    print ("Contacting " + path)
+                    #...
+        
         if (type == "Bearer"):
             code, output = IAA.verify_token(type, token, self.as_public_key, self.conf['target'],self.conf['tokens_expire'])
         if (type == "DID"):
