@@ -12,6 +12,8 @@ import json
 import base64
 import jwt
 
+
+
 ganache_accounts = [
     {
     'address':'0x1df62f291b2e969fb0849d99d9ce41e2f137006e',
@@ -78,27 +80,16 @@ def server():
     with open('tests/keys/as_public_key.pem', mode='rb') as file: 
         jwt_verification_key = file.read()
     
-    jwt_metadata = [
-        {
+    jwt_metadata = {
         'aud': 'sofie-iot.eu',
-        'jti': 0
-        },
-        {
-        'aud': 'sofie-iot.eu',
-        'jti': 1
-        },
-        {
-        'aud': 'sofie-iot.eu',
-        'jti': 2 
-        },
-    ]
-
+        'jti': 'c0097d06511a91ffd05912862dca06f5bd428886dd3b9534d863947a1aa3e5c4'
+    }
+    
     ERC721Contract_instance = w3.eth.contract(abi = abi, address = address)
-
-    jwt_token_enc = [None] * 3
-    for i in range(3):
-        jwt_token_enc[i] = jwt.encode(jwt_metadata[i],jwt_signing_key, algorithm='RS256')
-        tx_hash = ERC721Contract_instance.functions.mint(w3.toChecksumAddress(ganache_accounts[i]['address']), i, jwt_token_enc[i]).transact({'from': account}) 
+    
+    token_id = int('c0097d06511a91ffd05912862dca06f5bd428886dd3b9534d863947a1aa3e5c4', base=16)
+    jwt_token_enc = jwt.encode(jwt_metadata,jwt_signing_key, algorithm='RS256')
+    tx_hash = ERC721Contract_instance.functions.mint(w3.toChecksumAddress(ganache_accounts[0]['address']), token_id, jwt_token_enc).transact({'from': account}) 
 
     yield
     p3.kill()
@@ -108,20 +99,13 @@ def server():
 async def test_metadata():
     global w3, abi, account, address, jwt_verification_key, ERC721Contract_instance
 
-    metadata = ERC721Contract_instance.functions.getTokenURI(0).call()
+    token_id = int('c0097d06511a91ffd05912862dca06f5bd428886dd3b9534d863947a1aa3e5c4', base=16)
+
+    metadata = ERC721Contract_instance.functions.getTokenURI(token_id).call()
     jwt_token_dec = jwt.decode(metadata, jwt_verification_key, algorithms='RS256', audience='sofie-iot.eu', options={"verify_exp":False})
 
-    metadata1 = ERC721Contract_instance.functions.getTokenURI(1).call()
-    jwt_token_dec1 = jwt.decode(metadata1, jwt_verification_key, algorithms='RS256', audience='sofie-iot.eu', options={"verify_exp":False})
-
-    metadata2 = ERC721Contract_instance.functions.getTokenURI(2).call()
-    jwt_token_dec2 = jwt.decode(metadata2, jwt_verification_key, algorithms='RS256', audience='sofie-iot.eu', options={"verify_exp":False})
-
-    #print(jwt_token_dec)
-
-    assert(jwt_token_dec['jti'] == 0)
-    assert(jwt_token_dec1['jti'] == 1)
-    assert(jwt_token_dec2['jti'] == 2)
+    assert(int(jwt_token_dec['jti'], base=16) == token_id)
+    
 
 @pytest.mark.asyncio
 async def test_ownerOf():
@@ -132,19 +116,7 @@ async def test_ownerOf():
     hash1 = w3.keccak(hexstr=ganache_accounts[0]['public_key'])
     client_address1 = w3.toHex(hash1[-20:])
 
-    jwt_token_dec2 = jwt.decode(jwt_token_enc[1], jwt_verification_key, algorithms='RS256', audience='sofie-iot.eu', options={"verify_exp":False})
-    ownerOfToken2 = ERC721Contract_instance.functions.ownerOf(jwt_token_dec2['jti']).call()
-    hash2 = w3.keccak(hexstr=ganache_accounts[1]['public_key'])
-    client_address2 = w3.toHex(hash2[-20:])
-
-    jwt_token_dec3 = jwt.decode(jwt_token_enc[2], jwt_verification_key, algorithms='RS256', audience='sofie-iot.eu', options={"verify_exp":False})
-    ownerOfToken3 = ERC721Contract_instance.functions.ownerOf(jwt_token_dec3['jti']).call()
-    hash3 = w3.keccak(hexstr=ganache_accounts[2]['public_key'])
-    client_address3 = w3.toHex(hash3[-20:])
-
     assert(ownerOfToken1 == w3.toChecksumAddress(client_address1))
-    assert(ownerOfToken2 == w3.toChecksumAddress(client_address2))
-    assert(ownerOfToken3 == w3.toChecksumAddress(client_address3))
 
 @pytest.mark.asyncio
 async def test_revocation():
@@ -157,11 +129,3 @@ async def test_revocation():
     print(ownerOfToken)
 
     assert(ownerOfToken == '0x0000000000000000000000000000000000000000')
-
-
-
-
-
-
-
-

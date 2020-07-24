@@ -8,6 +8,7 @@ import sys
 import jwt
 import asyncio
 import requests
+from web3 import Web3
 
 conf = {}
 wallet_handle = ""
@@ -15,16 +16,26 @@ pool_handle = ""
 
 class IAA:
     @staticmethod
-    def verify_token(type, token=None, as_public_key=None, target=None, tokens_expire = True, proof=None):
-        if (type ==  "Bearer"):
-            #decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, verify_expiration = False)
-            try:
-                decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, options={"verify_exp":tokens_expire})
-                return 200, {'code':200,'message':'Success'}
-            except:
+    def verify_bearer(token=None, as_public_key=None, target=None, tokens_expire = True, proof=None): 
+        #decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, verify_expiration = False)
+        try:
+            decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, options={"verify_exp":tokens_expire})
+            return 200, {'code':200,'message':'Success'}
+        except:
+            return 403, {'code':403,'message':'Token validation failed'}
+
+    @staticmethod
+    def verify_bearer_erc721(token = None, jwt_verification_key = None, ERC721Contract_instance = None ):
+        try:
+            decoded_token = jwt.decode(token, jwt_verification_key, algorithms='RS256', audience='sofie-iot.eu', options={"verify_exp":False})
+            token_id = int(decoded_token['jti'], base = 16)
+            owner_of_token = ERC721Contract_instance.functions.ownerOf(token_id).call()
+            if (owner_of_token != 0):
+                return 200, {'code':200, 'message':'Success'}
+            else:
                 return 403, {'code':403,'message':'Token validation failed'}
-        return 403, {'code':403, 'message':'Invalide token type'}
-    
+        except:
+            return 403, {'code':403,'message':'Token validation failed'}
 
 class IAAHandler():
     def __init__(self):
@@ -35,6 +46,14 @@ class IAAHandler():
         loop = asyncio.get_event_loop()
         self.wallet_handle = loop.run_until_complete(wallet.open_wallet(json.dumps(self.conf['wallet_config']), json.dumps(self.conf['wallet_credentials'])))
         self.pool_handle = None
+        try:
+            self.w3 = Web3(Web3.HTTPProvider(self.conf['web3provider']))
+            with open('conf/contract/build/ERC721Metadata.abi', 'r') as myfile:
+                self.abi = myfile.read()
+            self.ERC721Contract_instance = self.w3.eth.contract(abi=self.abi, address=Web3.toChecksumAddress(self.conf['iaa_sc_address']))
+        except:
+            print("Couldn't connect to Ethereum blockchain:" + self.conf['web3provider'])
+            pass
     
     def wsgi_app(self, environ, start_response):
         req  = Request(environ)
@@ -61,7 +80,7 @@ class IAAHandler():
                     nonce = Indy.create_nonce()
                     output_header['WWW-Authenticate'] = "VC challenge=" + nonce
             if (auth_type == "Bearer"):
-                code, output = IAA.verify_token("Bearer", auth_grant, self.as_public_key, self.conf['target'],self.conf['tokens_expire'])
+                code, output = IAA.verify_bearer(auth_grant, self.as_public_key, self.conf['target'],self.conf['tokens_expire'])
                 if (code == 200):
                     path = environ.get('PATH_INFO')
                     headers = {}
@@ -79,8 +98,28 @@ class IAAHandler():
                         put_data = req.data
                         response  = requests.put(self.conf['proxy_pass'] + path, headers = headers, data = put_data.decode())
                     code = response.status_code
-                    output = response.text 
-        
+                    output = response.text
+            if (auth_type == "Bearer-ERC721"):
+                code, output = IAA.verify_bearer_erc721(auth_grant, self.as_public_key, self.ERC721Contract_instance)
+                if (code == 200):
+                    path = environ.get('PATH_INFO')
+                    headers = {}
+                    if (req.method == "GET"):
+                        if(accept):
+                            headers['Accept'] = accept
+                        headers.update(self.conf['header_rewrite'])
+                        response  = requests.get(self.conf['proxy_pass'] + path, headers = headers)
+                    elif (req.method == "PUT"):
+                        if(accept):
+                            headers['Accept'] = accept
+                        if(content):
+                            headers['Content-Type'] = content
+                        headers.update(self.conf['header_rewrite'])
+                        put_data = req.data
+                        response  = requests.put(self.conf['proxy_pass'] + path, headers = headers, data = put_data.decode())
+                    code = response.status_code
+                    output = response.text
+
         if (type == "Bearer"):
             code, output = IAA.verify_token(type, token, self.as_public_key, self.conf['target'],self.conf['tokens_expire'])
         if (type == "DID"):
