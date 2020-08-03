@@ -111,7 +111,7 @@ async def test_metadata():
 async def test_ownerOf():
     global w3, abi, account, address, jwt_verification_key, ERC721Contract_instance, ganache_accounts, jwt_token_enc
 
-    jwt_token_dec1 = jwt.decode(jwt_token_enc[0], jwt_verification_key, algorithms='RS256', audience='sofie-iot.eu', options={"verify_exp":False})
+    jwt_token_dec1 = jwt.decode(jwt_token_enc, jwt_verification_key, algorithms='RS256', audience='sofie-iot.eu', options={"verify_exp":False})
     ownerOfToken1 = ERC721Contract_instance.functions.ownerOf(jwt_token_dec1['jti']).call()
     hash1 = w3.keccak(hexstr=ganache_accounts[0]['public_key'])
     client_address1 = w3.toHex(hash1[-20:])
@@ -122,7 +122,7 @@ async def test_ownerOf():
 async def test_revocation():
     global w3, abi, account, address, jwt_verification_key, ERC721Contract_instance, ganache_accounts, jwt_token_enc
 
-    jwt_token_dec = jwt.decode(jwt_token_enc[0], jwt_verification_key, algorithms='RS256', audience='sofie-iot.eu', options={"verify_exp":False})
+    jwt_token_dec = jwt.decode(jwt_token_enc, jwt_verification_key, algorithms='RS256', audience='sofie-iot.eu', options={"verify_exp":False})
     tx_hash = ERC721Contract_instance.functions.burn1(jwt_token_dec['jti']).transact({'from': account}) 
 
     ownerOfToken = ERC721Contract_instance.functions.ownerOf(jwt_token_dec['jti']).call()

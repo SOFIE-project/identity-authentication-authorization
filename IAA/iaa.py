@@ -1,75 +1,37 @@
-from werkzeug.wrappers import Request, Response
+from werkzeug.wrappers       import Request, Response
 from werkzeug.datastructures import Headers
-from indy_agent import Indy
-from indy import pool, wallet
+from jwt_pep                 import jwt_pep
+from jwt_erc721_pep          import jwt_erc721_pep
+from http_proxy              import http_proxy
 
 import json
 import sys
-import jwt
 import asyncio
 import requests
-from web3 import Web3
 
-conf = {}
-wallet_handle = ""
-pool_handle = ""
-
-class IAA:
-    @staticmethod
-    def verify_bearer(token=None, as_public_key=None, target=None, tokens_expire = True, proof=None): 
-        #decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, verify_expiration = False)
-        try:
-            decoded_token = jwt.decode(token, as_public_key, algorithms='RS256', audience=target, options={"verify_exp":tokens_expire})
-            return 200, {'code':200,'message':'Success'}
-        except:
-            return 403, {'code':403,'message':'Token validation failed'}
-
-    @staticmethod
-    def verify_bearer_erc721(token = None, jwt_verification_key = None, ERC721Contract_instance = None ):
-        try:
-            decoded_token = jwt.decode(token, jwt_verification_key, algorithms='RS256', audience='sofie-iot.eu', options={"verify_exp":False})
-            token_id = int(decoded_token['jti'], base = 16)
-            owner_of_token = ERC721Contract_instance.functions.ownerOf(token_id).call()
-            if (owner_of_token != 0):
-                return 200, {'code':200, 'message':'Success'}
-            else:
-                return 403, {'code':403,'message':'Token validation failed'}
-        except:
-            return 403, {'code':403,'message':'Token validation failed'}
+  
 
 class IAAHandler():
     def __init__(self):
         with open('conf/iaa.conf') as f:
             self.conf = json.load(f)
-        with open(self.conf['as_public_key'], mode='rb') as file: 
-            self.as_public_key = file.read()
-        loop = asyncio.get_event_loop()
-        self.wallet_handle = loop.run_until_complete(wallet.open_wallet(json.dumps(self.conf['wallet_config']), json.dumps(self.conf['wallet_credentials'])))
-        self.pool_handle = None
-        try:
-            self.w3 = Web3(Web3.HTTPProvider(self.conf['web3provider']))
-            with open('conf/contract/build/ERC721Metadata.abi', 'r') as myfile:
-                self.abi = myfile.read()
-            self.ERC721Contract_instance = self.w3.eth.contract(abi=self.abi, address=Web3.toChecksumAddress(self.conf['iaa_sc_address']))
-        except:
-            print("Couldn't connect to Ethereum blockchain:" + self.conf['web3provider'])
-            pass
-    
+        self.jwt_pep = jwt_pep()
+        self.jwt_erc721_pep = jwt_erc721_pep()
+        self.http_proxy = http_proxy()
+
     def wsgi_app(self, environ, start_response):
-        req  = Request(environ)
-        code = 403
-        output = {'code':403, 'message':'Invalide or missing input parameters'}
+        req      = Request(environ)
+        path     = environ.get('PATH_INFO')
+        code     = 403
+        resource = {}
+        output = 'Invalide or missing input parameters'
         output_header = {}
-        form = req.form
-        type  = form.get("token-type")
-        token = form.get("token")
-        challenge = form.get("challenge")
-        proof = form.get("proof")
-        auth = req.headers.get('Authorization')
-        accept = req.headers.get('Accept')
-        content = req.headers.get('Content-Type')
+        auth    = req.headers.get('Authorization')
+        if (path in self.conf['resources']):
+            resource = self.conf['resources'][path]
         if (auth):
             auth_type, auth_grant = auth.split(" ",1)
+            '''
             if (auth_type == 'VC'):
                 proof = req.headers.get('VC-proof')
                 if (proof):
@@ -79,53 +41,35 @@ class IAAHandler():
                     code = 401
                     nonce = Indy.create_nonce()
                     output_header['WWW-Authenticate'] = "VC challenge=" + nonce
-            if (auth_type == "Bearer"):
-                code, output = IAA.verify_bearer(auth_grant, self.as_public_key, self.conf['target'],self.conf['tokens_expire'])
-                if (code == 200):
-                    path = environ.get('PATH_INFO')
-                    headers = {}
-                    if (req.method == "GET"):
-                        if(accept):
-                            headers['Accept'] = accept
-                        headers.update(self.conf['header_rewrite'])
-                        response  = requests.get(self.conf['proxy_pass'] + path, headers = headers)
-                    elif (req.method == "PUT"):
-                        if(accept):
-                            headers['Accept'] = accept
-                        if(content):
-                            headers['Content-Type'] = content
-                        headers.update(self.conf['header_rewrite'])
-                        put_data = req.data
-                        response  = requests.put(self.conf['proxy_pass'] + path, headers = headers, data = put_data.decode())
-                    code = response.status_code
-                    output = response.text
-            if (auth_type == "Bearer-ERC721"):
-                code, output = IAA.verify_bearer_erc721(auth_grant, self.as_public_key, self.ERC721Contract_instance)
-                if (code == 200):
-                    path = environ.get('PATH_INFO')
-                    headers = {}
-                    if (req.method == "GET"):
-                        if(accept):
-                            headers['Accept'] = accept
-                        headers.update(self.conf['header_rewrite'])
-                        response  = requests.get(self.conf['proxy_pass'] + path, headers = headers)
-                    elif (req.method == "PUT"):
-                        if(accept):
-                            headers['Accept'] = accept
-                        if(content):
-                            headers['Content-Type'] = content
-                        headers.update(self.conf['header_rewrite'])
-                        put_data = req.data
-                        response  = requests.put(self.conf['proxy_pass'] + path, headers = headers, data = put_data.decode())
-                    code = response.status_code
-                    output = response.text
+            if (auth_type == "DID"):
+                loop = asyncio.get_event_loop()
+                code, output = loop.run_until_complete(
+                    Indy.verify_did(token, challenge, proof, self.wallet_handle, self.pool_handle, True))
+            '''
+            #*********JWT***********
+            if (resource['authorization']['type'] == "jwt" and auth_type == "Bearer"):
+                if (not ('signing_key' in resource['authorization'])):
+                    with open(resource['authorization']['signing_key_file'], mode='rb') as file: 
+                        resource['authorization']['signing_key'] = file.read()
+                result, error_code = self.jwt_pep.verify_bearer(auth_grant, resource['authorization']['signing_key'], resource['authorization']['tokens_expire'])
+                if (result == True):
+                    code, output = self.http_proxy.forward(environ, resource['proxy']['proxy_pass'], resource['proxy']['header_rewrite'])
+                else:
+                    code = 401
+                    output = str(error_code)
 
-        if (type == "Bearer"):
-            code, output = IAA.verify_token(type, token, self.as_public_key, self.conf['target'],self.conf['tokens_expire'])
-        if (type == "DID"):
-            loop = asyncio.get_event_loop()
-            code, output = loop.run_until_complete(
-                Indy.verify_did(token, challenge, proof, self.wallet_handle, self.pool_handle, True))
+            #*********JWT+ERC721*********** 
+            if (resource['authorization']['type'] == "jwt-erc721" and auth_type == "Bearer-ERC721"):
+                if (not ('signing_key' in resource['authorization'])):
+                    with open(resource['authorization']['signing_key_file'], mode='rb') as file: 
+                        resource['authorization']['signing_key'] = file.read()
+                result, error_code = self.jwt_erc721_pep.verify_bearer_erc721(auth_grant, resource['authorization']['signing_key'])
+                if (result == True):
+                    code, output = self.http_proxy.forward(environ, resource['proxy']['proxy_pass'], resource['proxy']['header_rewrite'])
+                else:
+                    code = 401
+                    output = str(error_code)
+
         response = Response(output.encode(), status=code, mimetype='application/json')
         if output_header:
             for key,value in output_header.items():
@@ -143,7 +87,6 @@ def main():
     from werkzeug.serving import run_simple
     app = create_app()
     run_simple('', 9000, app)
-    #loop.run_until_complete(wallet.close_wallet(wallet_handle))
 
 if __name__ == '__main__':
     main()
