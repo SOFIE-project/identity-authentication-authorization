@@ -51,7 +51,10 @@ class IAAHandler():
                 if (not ('signing_key' in resource['authorization'])):
                     with open(resource['authorization']['signing_key_file'], mode='rb') as file: 
                         resource['authorization']['signing_key'] = file.read()
-                result, error_code = self.jwt_pep.verify_bearer(auth_grant, resource['authorization']['signing_key'], resource['authorization']['tokens_expire'])
+                result, error_code = self.jwt_pep.verify_bearer(token=auth_grant, 
+                    signing_key  = resource['authorization']['signing_key'], 
+                    tokens_expire = resource['authorization']['tokens_expire'], 
+                    filter= resource['authorization']['filters'])
                 if (result == True):
                     code, output = self.http_proxy.forward(environ, resource['proxy']['proxy_pass'], resource['proxy']['header_rewrite'])
                 else:
