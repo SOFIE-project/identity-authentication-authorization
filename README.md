@@ -92,9 +92,7 @@ In order to build IAA image, execute the script `docker-build.sh`. Then you can 
 ### Usage
 
 
-#### Examples
-
-```
+#### Example
 
 ## Testing
 
@@ -122,6 +120,6 @@ No known issues
 
 ## Contact info
 
-Please contact Nikos Fotiou or Dimitris Dimopoulos (AUEB) in case of any questions.
+Please contact Nikos Fotiou or Iakovos Pittaras (AUEB) in case of any questions.
 
 ***
