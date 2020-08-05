@@ -3,12 +3,19 @@ import asyncio
 import base64
 import random
 
-class Indy:
-    @staticmethod
+class indy_pep:
+
+    def __init__(self):
+        with open('conf/indy.conf') as f:
+            self.conf = json.load(f)
+                loop = asyncio.get_event_loop()
+        self.wallet_handle = loop.run_until_complete(wallet.open_wallet(json.dumps(self.conf['wallet_config']), json.dumps(self.conf['wallet_credentials'])))
+        self.pool_handle = None
+
     def create_nonce(length=30):
         return ''.join([str(random.randint(0, 9)) for i in range(length)])
 
-    @staticmethod
+
     async def verify_did(client_did, challenge = None, signature=None, wallet_handle="", pool_handle="", only_wallet_lookup=False, user_generated_challenge=False):
         if (client_did !=None and challenge == None):
             return 401, {'code':401, 'message' : 'Proof required','challenge': Indy.create_nonce()}
