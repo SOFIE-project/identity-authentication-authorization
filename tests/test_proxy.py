@@ -34,3 +34,8 @@ def test_valid_bearer_put():
     print(response.text)
     assert(response.status_code == 200)
 
+def test_valid_default_get():
+    headers = {'Accept': 'application/json'}
+    response  = requests.get("http://localhost:9000/randomURL", headers = headers)
+    print(response.text)
+    assert(response.status_code == 200)
