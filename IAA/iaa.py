@@ -32,6 +32,7 @@ class IAAHandler():
         elif ('default' in self.conf['resources']):
             resource = self.conf['resources']["default"]
         is_client_authorized = False
+        error_code = 0
         if ('authorization' in resource and auth):
             auth_type, auth_grant = auth.split(" ",1)
             '''
