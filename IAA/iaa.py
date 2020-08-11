@@ -31,7 +31,8 @@ class IAAHandler():
             resource = self.conf['resources'][path]
         elif ('default' in self.conf['resources']):
             resource = self.conf['resources']["default"]
-        if (auth):
+        is_client_authorized = False
+        if ('authorization' in resource and auth):
             auth_type, auth_grant = auth.split(" ",1)
             '''
             if (auth_type == 'VC'):
@@ -49,7 +50,7 @@ class IAAHandler():
                     Indy.verify_did(token, challenge, proof, self.wallet_handle, self.pool_handle, True))
             '''
             #*********JWT***********
-            if ('authorization' in resource and resource['authorization']['type'] == "jwt" and auth_type == "Bearer"):
+            if (resource['authorization']['type'] == "jwt" and auth_type == "Bearer"):
                 if ('signing_key' not in resource['authorization']):
                     with open(resource['authorization']['signing_key_file'], mode='rb') as file: 
                         resource['authorization']['signing_key'] = file.read()
@@ -58,24 +59,23 @@ class IAAHandler():
                     tokens_expire = resource['authorization']['tokens_expire'], 
                     filter= resource['authorization']['filters'])
                 if (result == True):
-                    code, output = self.http_proxy.forward(environ, resource['proxy']['proxy_pass'], resource['proxy'].get('header_rewrite'))
-                else:
-                    code = 401
-                    output = str(error_code)
+                    is_client_authorized = True
 
             #*********JWT+ERC721*********** 
-            if ('authorization' in resource and resource['authorization']['type'] == "jwt-erc721" and auth_type == "Bearer-ERC721"):
+            if (resource['authorization']['type'] == "jwt-erc721" and auth_type == "Bearer-ERC721"):
                 if ('signing_key' not in resource['authorization']):
                     with open(resource['authorization']['signing_key_file'], mode='rb') as file: 
                         resource['authorization']['signing_key'] = file.read()
                 result, error_code = self.jwt_erc721_pep.verify_bearer_erc721(auth_grant, resource['authorization']['signing_key'])
                 if (result == True):
-                    code, output = self.http_proxy.forward(environ, resource['proxy']['proxy_pass'], resource['proxy'].get('header_rewrite'))
-                else:
-                    code = 401
-                    output = str(error_code)
+                    is_client_authorized = True
         elif('authorization' not in resource):
+            is_client_authorized = True
+        if (is_client_authorized):
             code, output = self.http_proxy.forward(environ, resource['proxy']['proxy_pass'], resource['proxy'].get('header_rewrite'))
+        else:
+            code = 401
+            output = str(error_code)
         response = Response(output.encode(), status=code, mimetype='application/json')
         if output_header:
             for key,value in output_header.items():
