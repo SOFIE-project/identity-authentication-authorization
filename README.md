@@ -1,13 +1,22 @@
 # Identity, Authentication, and Authorization Component
 ## Description
-This is the Identity, Authentication, and Authorization (IAA) Component of the SOFIE framework. 
-It implements an HTTP forward proxy that performs user authentication based on 
-Decentralized Identifiers, Verifiable Credentials, and JSON web tokens, and it
-performs user authorization based-on pre-configured policies. 
+This is the Identity, Authentication, and Authorization (IAA) Component of the SOFIE framework.
+
+This component implements an HTTP forward proxy that performs user authorization based on an access token. It supports the following types of access tokens:
+Decentralized Identifiers, Verifiable Credentials, and JSON web tokens. 
 
 ### Architecture Overview
+As shown in Figure 1, the IAA components intercepts the communication between a 
+client and a resource server. The resource server may not be accessible over the
+Internet. The client needs to obtain a valid access token (e.g., using SOFIE's
+PDS component). Then, the client performs an HTTP request by including the obtained
+token in an HTTP Authentication header. Based on the type of the token, and IAA's
+configured policies, IAA may reject the request, may forward it to the resource
+server, or it may respond with a ``challenge'' that the client must sign in order
+to prove the s/he is the legitimate owner of the access token. 
 
-
+[Figure1](figures/figure1.png)
+Figure 1: The IAA component
 
 ### Relation with SOFIE
 
@@ -16,7 +25,10 @@ More information about this component and its relation to the SOFIE project can 
 
 ### Key Technologies
 
-
+The software modules are implemented in Python 3. Currently the component supports
+Hyperledger Indy DID and VC, W3C VC, JWT, and JWT backed by Ethereum ERC-721 tokens
+(as described in [N. Fotiou et al. "OAuth 2.0 authorization using blockchain-based
+tokens", in proc of the NDSS DISS workshop, 2020](https://www.ndss-symposium.org/wp-content/uploads/2020/04/diss2020-23002-paper.pdf))
 
 ## Usage
 
@@ -30,20 +42,20 @@ IAA component is built using Python3. It depends on the following packages:
 * pip3 install pynacl 
 * pip3 install jsonpath-ng
 
-Depending on the user authentication methods that will be used the following additional dependencies are required
+Depending on the type of access tokens that will be used the following additional dependencies are required
 
-#### JWT-based authentication
+#### JWT
 * pip3 install pyjwt
 
-#### JWT-ERC721-based authentication
+#### JWT backed by ERC-721 token
 * pip3 install jsonpath-ng
 * pip3 install jpyjwt
 * pip3 install web3
 
-#### W3C-VC-based authentication
+#### W3C-VC
 * pip3 install PyLD
 
-#### Hyperlink Indy DID/VC-based authentication
+#### Hyperlink Indy DID/VC
 * sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CE7709D068DB5E88
 * sudo add-apt-repository "deb https://repo.sovrin.org/sdk/deb bionic stable"
 * sudo apt-get update
@@ -91,8 +103,8 @@ In order to build IAA image, execute the script `docker-build.sh`. Then you can 
 
 ### Usage
 
-
 #### Example
+See [here](https://github.com/SOFIE-project/PDS-IAA) for usage examples. 
 
 ## Testing
 
