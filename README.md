@@ -15,7 +15,7 @@ configured policies, IAA may reject the request, may forward it to the resource
 server, or it may respond with a ``challenge'' that the client must sign in order
 to prove the s/he is the legitimate owner of the access token. 
 
-[Figure1](figures/figure1.png)
+![Figure1](figures/figure1.png)
 Figure 1: The IAA component
 
 ### Relation with SOFIE
