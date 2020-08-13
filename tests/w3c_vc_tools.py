@@ -1,5 +1,6 @@
 import hashlib
 import datetime
+import json 
 import nacl.signing
 import nacl.encoding
 from pyld import jsonld
@@ -109,3 +110,39 @@ def filter(credential, filters):
         if not found:
             return False 
     return True
+
+sofie_credential = {
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://mm.aueb.gr/contexts/access_control/v1"
+  ],
+  "id": "https://www.sofie-iot.eu/credentials/examples/1",
+  "type": [
+    "VerifiableCredential"
+  ],
+  "issuer": "did:nacl:E390CF3B5B93E921C45ED978737D89F61B8CAFF9DE76BFA5F63DA20386BCCA3B",
+  "issuanceDate": "2010-01-01T19:23:24Z",
+  "credentialSubject": {
+    "id": "did:nacl:A490CF3B5B93E921C45ED978737D89F61B8CAFF9DE76BFA5F63DA20386BCCA62",
+    "type": [
+      "AllowedURLs"
+    ],
+    "acl": [
+      {
+        "url": "http://sofie-iot.eu/secure/w3c-vc",
+        "methods": [
+          "GET",
+          "POST"
+        ]
+      }
+    ]
+  }
+}
+
+signing_key = {
+    'id': 'did:nacl:E390CF3B5B93E921C45ED978737D89F61B8CAFF9DE76BFA5F63DA20386BCCA3B#key0',
+    'privateKeyHex': '826CB6B9EA7C0752F78F600805F9005ACB66CAA340B0F5CFA6BF41D470D49475',
+}
+
+singed_credential = issue(sofie_credential, signing_key)
+print(json.dumps(singed_credential, indent=2))
