@@ -2,12 +2,14 @@ from werkzeug.wrappers       import Request, Response
 from werkzeug.datastructures import Headers
 from jwt_pep                 import jwt_pep
 from jwt_erc721_pep          import jwt_erc721_pep
+from w3c_vc_pep              import w3c_vc_pep
 from http_proxy              import http_proxy
 
 import json
 import sys
 import asyncio
 import requests
+import base64
 
   
 
@@ -17,6 +19,7 @@ class IAAHandler():
             self.conf = json.load(f)
         self.jwt_pep = jwt_pep()
         self.jwt_erc721_pep = jwt_erc721_pep()
+        self.w3c_vc_pep = w3c_vc_pep()
         self.http_proxy = http_proxy()
 
     def wsgi_app(self, environ, start_response):
@@ -50,6 +53,17 @@ class IAAHandler():
                 code, output = loop.run_until_complete(
                     Indy.verify_did(token, challenge, proof, self.wallet_handle, self.pool_handle, True))
             '''
+            #*********W3C-VC***********
+            if (resource['authorization']['type'] == "w3c-vc" and auth_type == "Bearer-W3C-VC"):
+                if ('signing_key' not in resource['authorization']):
+                    with open(resource['authorization']['signing_key_file'], mode='rb') as file: 
+                        resource['authorization']['signing_key'] = file.read()
+                result, error_code = self.w3c_vc_pep.verify_w3c_vc(vc=base64.urlsafe_b64decode(auth_grant).decode(), 
+                    signing_key  = resource['authorization']['signing_key'],  
+                    filter= resource['authorization']['filters'])
+                if (result == True):
+                    is_client_authorized = True
+
             #*********JWT***********
             if (resource['authorization']['type'] == "jwt" and auth_type == "Bearer"):
                 if ('signing_key' not in resource['authorization']):
