@@ -1,0 +1,11 @@
+{
+  "name": "sofie-erc721",
+  "version": "1.0.1",
+  "description": "Smart contract for ERC-721 based access tokens.",
+  "files": [
+    "*.sol"
+  ],
+  "repository": "https://github.com/mmlab-aueb/identity-authentication-authorization",
+  "author": "Nikos Fotiou, Iakovos Pitarras",
+  "license": "APL 2.0"
+}
