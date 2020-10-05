@@ -87,7 +87,11 @@ class IAAHandler():
         elif('authorization' not in resource):
             is_client_authorized = True
         if (is_client_authorized):
-            code, output = self.http_proxy.forward(environ, resource['proxy']['proxy_pass'], resource['proxy'].get('header_rewrite'))
+            if ('proxy' in  resource):
+                code, output = self.http_proxy.forward(environ, resource['proxy']['proxy_pass'], resource['proxy'].get('header_rewrite'))
+            else:
+                code = 200
+                output = "OK"
         else:
             code = 401
             output = str(error_code)

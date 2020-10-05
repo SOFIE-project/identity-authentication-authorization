@@ -1,9 +1,15 @@
-from pyld import jsonld
-from pyld.jsonld import JsonLdProcessor
 from jsonpath_ng import jsonpath
 from jsonpath_ng.ext import parse
-import nacl.signing
-import nacl.encoding
+try:
+    import nacl.signing
+    import nacl.encoding
+except ImportError:
+     print("Couldn't import nacl, if you don't need W3C-VC support that's OK")
+try:
+    from pyld import jsonld
+    from pyld.jsonld import JsonLdProcessor
+except ImportError:
+     print("Couldn't import pyld, if you don't need W3C-VC support that's OK")
 import hashlib
 import json
 

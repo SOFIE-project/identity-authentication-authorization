@@ -1,4 +1,7 @@
-import jwt
+try:
+    import jwt
+except ImportError:
+     print("Couldn't import jwt, if you don't need JSON web token support that's OK")
 from jsonpath_ng import jsonpath
 from jsonpath_ng.ext import parse
 

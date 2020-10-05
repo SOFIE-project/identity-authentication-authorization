@@ -38,7 +38,6 @@ IAA component is built using Python3. It depends on the following packages:
 
 ```bash
 pip3 install Werkzeug
-pip3 install pynacl 
 pip3 install jsonpath-ng
 ```
 
@@ -53,8 +52,7 @@ pip3 install pyjwt
 #### JWT backed by ERC-721 token
 
 ```bash
-pip3 install jsonpath-ng
-pip3 install jpyjwt
+pip3 install pyjwt
 pip3 install web3
 ```
 
@@ -62,6 +60,7 @@ pip3 install web3
 
 ```bash
 pip3 install PyLD
+pip3 install pynacl 
 ```
 
 #### Hyperlink Indy DID/VC
