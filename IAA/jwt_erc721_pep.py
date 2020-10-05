@@ -1,6 +1,12 @@
-import jwt
 import json
-from web3 import Web3
+try:
+    from web3 import Web3
+except ImportError:
+     print("Couldn't import web3, if you don't need ERC-721 support that's OK")
+try:
+    import jwt
+except ImportError:
+     print("Couldn't import jwt, if you don't need JSON web token support that's OK")
 
 class jwt_erc721_pep:
     def __init__(self):

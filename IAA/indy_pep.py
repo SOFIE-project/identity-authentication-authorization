@@ -1,4 +1,7 @@
-from indy import did,wallet,crypto
+try:
+    from indy import did,wallet,crypto
+except ImportError:
+     print("Couldn't import indy, if you don't need Indy support that's OK")
 import asyncio
 import base64
 import random

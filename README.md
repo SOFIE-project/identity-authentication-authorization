@@ -38,7 +38,6 @@ IAA component is built using Python3. It depends on the following packages:
 
 ```bash
 pip3 install Werkzeug
-pip3 install pynacl 
 pip3 install jsonpath-ng
 ```
 
@@ -53,8 +52,7 @@ pip3 install pyjwt
 #### JWT backed by ERC-721 token
 
 ```bash
-pip3 install jsonpath-ng
-pip3 install jpyjwt
+pip3 install pyjwt
 pip3 install web3
 ```
 
@@ -62,6 +60,7 @@ pip3 install web3
 
 ```bash
 pip3 install PyLD
+pip3 install pynacl 
 ```
 
 #### Hyperlink Indy DID/VC
@@ -112,7 +111,7 @@ The proxy entry of a resource contains the following fields:
 ## Execution
 
 ### Execution from source
-From the root directory run `python3 IAA/iaa.py <configuration file>` e.g., `python3 IAA/iaa.py conf/iaa.conf`
+From the root directory run `python3 IAA/iaa.py`
 
 ### Dockerized version
 In order to build IAA image, execute the script `docker-build.sh`. Then you can run IAA using, for example,  `docker run -tid --rm -p 9000:9000 iaa`. You can verify that IAA is running properly be executing the script `examples/validate_token.sh`
