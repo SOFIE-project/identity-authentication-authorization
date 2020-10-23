@@ -38,12 +38,12 @@ class w3c_vc_pep:
             ver_key.verify(to_verify, signature)
             if(filter):
                 if(self._filter(singed_credential, filter)):
-                    return True, 0
+                    return True, "0"
                 else:
-                    return False, 101 #Filter failed
+                    return False, "101 Filter failed"
             return True
         except:
-            return False, 100 #VC signature verification failed
+            return False, "100 VC signature verification failed"
     
     def _filter(self, json_obj, filters): 
         for filter in filters:
