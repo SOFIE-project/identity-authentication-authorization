@@ -27,8 +27,8 @@ class jwt_erc721_pep:
             token_id = int(decoded_token['jti'], base = 16)
             owner_of_token = self.ERC721Contract_instance.functions.ownerOf(token_id).call()
             if (owner_of_token != 0):
-                return True, 0
+                return True, "0"
             else:
-                return False, 101 #ERC-721 token has been revoked
+                return False, "101 ERC-721 token has been revoked"
         except:
-            return False, 100 #Token cannot be decoded
+            return False, "100 Token cannot be decoded"

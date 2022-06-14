@@ -1,7 +1,26 @@
 # Identity, Authentication, and Authorization Component
+- [Description](#Description)
+    - [Architecture Overview](#Architecture-Overview)
+    - [Relation with SOFIE](#Relation-with-SOFIE)
+    - [Key Technologies](#Key-Technologies)
+- [Usage](#Usage)
+    - [Prerequisites](#Prerequisites)
+    - [Installation](#Installation)
+    - [Configuration](#Configuration)
+    - [Execution](#Execution)
+    - [Docker Images](#Docker-Images)
+- [Testing](#Testing)
+    - [Prerequisites for Testing](#Prerequisites-for-Testing)
+    - [Running the Tests](#Running-the-Tests)
+    - [Evaluating Results](#Evaluating-the-Results)
+- [Open Issues](#Open-Issues)
+- [Contact Info](#Contact-Info)
+- [License](#License)
+
 ## Description
 
-The Identity, Authentication, and Authorization (IAA) Component implements an HTTP forward proxy that performs 
+This is the Identity, Authentication, and Authorization (IAA) Component of the [SOFIE framework](https://github.com/SOFIE-project/Framework). 
+IAA implements an HTTP forward proxy that performs 
 user authorization based on an access token. It supports the following types of access tokens:
 Decentralized Identifiers, Verifiable Credentials, and JSON web tokens. 
 
@@ -16,7 +35,7 @@ server, or it may respond with a ``challenge'' that the client must sign in orde
 to prove the s/he is the legitimate owner of the access token. 
 
 ![Figure1](figures/figure1.png)
-Figure 1: The IAA component
+*Figure 1: The IAA component*
 
 ### Relation with SOFIE
 
